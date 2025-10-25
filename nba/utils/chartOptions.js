@@ -77,7 +77,7 @@ export function CustomMarker({
 
   useEffect(() => {
     const handleTooltipShown = (ev) => {
-      setHighlighted(ev.detail == seriesId)
+      setHighlighted(ev.seriesId == seriesId)
     }
     const handleTooltipHidden = () => {
       setHighlighted(false);
@@ -111,7 +111,7 @@ export function CustomTooltip() {
       </ChartsTooltipContainer>
     )
   } else {
-    const event = new CustomEvent('tooltipShown', { detail: item.identifier.seriesId });
+    const event = new CustomEvent('tooltipShown', { seriesId: item.identifier.seriesId });
     document.dispatchEvent(event);
   }
 
