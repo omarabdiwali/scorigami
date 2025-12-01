@@ -109,8 +109,6 @@ const constructTweet = async (data) => {
 
 const getScorigamiData = async () => {
     try {
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-
         const keys = ["id", "date", "winner", "winnerScore", "loser", "loserScore"];
         const tweetsToPost = [];
         const url = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard";
