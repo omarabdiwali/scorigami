@@ -33,7 +33,15 @@ All sub-projects are built using Next.js and use the following technologies:
 
 Both Scorigami applications feature an interactive chart showcasing all unique scores throughout the sport's history. The chart is updated daily and provides a visual representation of the scorigami data.
 
+Additionally, both applications include a live game center that displays:
+* Real-time scores for ongoing games
+* Upcoming scheduled games with dates and times
+* Final results with winning teams highlighted
+* Team logos, names, and current records
+* Game status indicators
+
 ![NBA Chart](https://i.imgur.com/581a3DS.png)
+![Game Center](https://i.imgur.com/i2sTJFe.png)
 
 ## Setup
 
@@ -55,5 +63,5 @@ To set up a sub-project, navigate to its directory and follow the setup instruct
 To use a sub-project, follow the usage instructions in its README:
 
 1. Open the application in a web browser: `http://localhost:3000`
-2. The application will display the latest scorigami data, including an interactive chart showcasing all unique scores.
+2. The application will display the latest scorigami data, including an interactive chart showcasing all unique scores and a live game center with current and upcoming games.
 3. If a scorigami occurs, it will be tweeted from the respective Twitter account.

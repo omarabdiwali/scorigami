@@ -1,33 +1,7 @@
 import dbConnect from './dbConnect';
 import NBAScores from '@/models/NBAScores';
 import ProcessedGames from '@/models/ProcessedGames';
-
-const getRequest = async (url) => {
-    return await fetch(url).then(res => res.json()).then(data => { return data; });
-}
-
-const getNestedProperty = (data, keys) => {
-    let current = data;
-    let prevKey = null;
-    const errorMessage = `Key '${keys.join(".")}' does not exist.`
-
-    for (const key of keys) {
-        if (current === null || current === undefined) throw new Error(`${errorMessage} Missing ${prevKey}.${key}.`);
-        current = current[key];
-        prevKey = key;
-    }
-
-    if (current === undefined) throw new Error(errorMessage);
-    return current;
-}
-
-const validateData = (data, keys) => {
-    for (const key of keys) {
-        if (data[key] === null || data[key] === undefined) {
-            throw new Error(`Missing data field '${key}': ${JSON.stringify(data, null, 2)}`);
-        }
-    }
-}
+import { getRequest, getNestedProperty, validateData } from './global';
 
 const normalizeDate = (stringDate) => {
     const date = new Date(stringDate);
