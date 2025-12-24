@@ -41,7 +41,7 @@ Additionally, both applications include a live game center that displays:
 * Game status indicators
 
 ![NBA Chart](https://i.imgur.com/581a3DS.png)
-![Game Center](https://i.imgur.com/i2sTJFe.png)
+![Game Center](https://i.imgur.com/T2qFe68.png)
 
 ## Setup
 
