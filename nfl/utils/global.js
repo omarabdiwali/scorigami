@@ -2,7 +2,7 @@ export const getRequest = async (url) => {
     return await fetch(url).then(res => res.json()).then(data => { return data; });
 }
 
-export const getNestedProperty = (data, keys) => {
+export const getNestedProperty = (data, keys, allowUndefined=false) => {
     let current = data;
     let prevKey = null;
     const errorMessage = `Key '${keys.join(".")}' does not exist.`
@@ -13,7 +13,7 @@ export const getNestedProperty = (data, keys) => {
         prevKey = key;
     }
 
-    if (current === undefined) throw new Error(errorMessage);
+    if (current === undefined && !allowUndefined) throw new Error(errorMessage);
     return current;
 }
 

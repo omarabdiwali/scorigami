@@ -1,26 +1,12 @@
 import { useEffect, useState } from "react";
-import { Geist, Geist_Mono } from "next/font/google";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 function GameCard({ game }) {
-  const now = new Date();
   const gameDate = new Date(game.date);
-  const isFinal = game.status.includes('Final');
-  const isLive = gameDate < now && !isFinal;
-  const isUpcoming = now < gameDate || game.status.includes("AM") || game.status.includes("PM");
+  const isFinal = game.status == "STATUS_FINAL";
+  const isLive = game.status == "STATUS_IN_PROGRESS";
+  const isUpcoming = game.status == "STATUS_SCHEDULED";
   const team1Winner = parseInt(game.teams[0].score) > parseInt(game.teams[1].score);
   const team2Winner = parseInt(game.teams[1].score) > parseInt(game.teams[0].score);
-
-  const formatScore = (score) => score || '0';
 
   return (
     <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] flex flex-col h-full">
@@ -32,7 +18,7 @@ function GameCard({ game }) {
         }`}>
           {isUpcoming ? 'UPCOMING' : isLive ? 'LIVE' : 'FINAL'}
         </span>
-        {isLive && !isUpcoming && (
+        {isLive && (
           <div className="flex items-center">
             <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse mr-1"></div>
             <span className="text-xs text-red-400">Live</span>
@@ -56,10 +42,10 @@ function GameCard({ game }) {
                 ({team.record})
               </span>
             </div>
-            <span className={`text-lg font-bold min-w-[2rem] text-right ${isUpcoming ? "hidden" : ""} ${
+            <span className={`text-lg font-bold min-w-[2rem] text-right ${isUpcoming && "hidden"} ${
               isFinal && ((index == 0 && team1Winner) ? 'text-green-400' : (index == 1 && team2Winner) ? 'text-green-400' : 'text-gray-400')
             }`}>
-              {formatScore(team.score)}
+              {team.score}
             </span>
           </div>
         ))}
@@ -68,14 +54,14 @@ function GameCard({ game }) {
       <div className="mt-4 pt-3 border-t border-white/10">
         <div className="text-xs text-gray-300 text-center">
           {isUpcoming ? (
-            <div>
+            <>
               <div>{gameDate.toLocaleDateString()}</div>
               <div className="text-gray-200 font-medium">
                 {gameDate.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
               </div>
-            </div>
+            </>
           ) : (
-            <span>{game.status}</span>
+            <span>{game.detail}</span>
           )}
         </div>
       </div>
@@ -125,19 +111,15 @@ export default function DisplayGames() {
           const sortedGames = data.games.sort((a, b) => {
             const aDate = new Date(a.date);
             const bDate = new Date(b.date);
-            const now = new Date();
-
-            const aIsFinal = a.status.includes("Final");
-            const bIsFinal = b.status.includes("Final");
-            const aIsLive = aDate < now && !aIsFinal;
-            const bIsLive = bDate < now && !bIsFinal;
+            const aIsLive = a.status == "STATUS_IN_PROGRESS";
+            const bIsLive = b.status == "STATUS_IN_PROGRESS";
             
             if (aIsLive && !bIsLive) return -1;
             if (!aIsLive && bIsLive) return 1;
             if (aIsLive && bIsLive) return aDate - bDate;
             
-            const aIsUpcoming = now < aDate || a.status.includes("AM") || a.status.includes("PM");
-            const bIsUpcoming = now < bDate || b.status.includes("AM") || b.status.includes("PM");
+            const aIsUpcoming = a.status == "STATUS_SCHEDULED";
+            const bIsUpcoming = b.status == "STATUS_SCHEDULED";
             
             if (aIsUpcoming && !bIsUpcoming) return -1;
             if (!aIsUpcoming && bIsUpcoming) return 1;
@@ -192,7 +174,7 @@ export default function DisplayGames() {
   }
 
   return (
-    <div className={`${geistSans.className} ${geistMono.className}`}>
+    <>
       <div className="text-center mb-6 p-2">
         <h1 className="text-2xl font-semibold text-gray-600">NBA Game Center</h1>
         <p className="text-gray-400 text-sm">
@@ -204,6 +186,6 @@ export default function DisplayGames() {
           <GameCard key={`${game.date}-${idx}`} game={game} />
         ))}
       </div>
-    </div>
+    </>
   );
 }

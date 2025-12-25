@@ -15,9 +15,9 @@ const geistMono = Geist_Mono({
 
 export default function Home() {
   return (
-    <>
+    <div className={`${geistSans.className} ${geistMono.className}`}>
       <div
-        className={`${geistSans.className} ${geistMono.className} font-sans items-center justify-items-center min-h-screen p-8 gap-16`}
+        className={`font-sans items-center justify-items-center min-h-screen p-8 gap-16`}
       >
         <main className="flex gap-[32px] items-center sm:items-start">
           <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
@@ -43,7 +43,7 @@ export default function Home() {
       
       <DisplayGames />
       
-      <div className={`${geistSans.className} ${geistMono.className} pb-5`}>  
+      <div className={`pb-5`}>  
         <footer className="row-start-3 mt-10 flex flex-wrap items-center justify-center gap-4">
           <a
             className="flex items-center gap-2 hover:underline hover:underline-offset-4"
@@ -93,6 +93,6 @@ export default function Home() {
           </a>
         </footer>
       </div>
-    </>
+    </div>
   );
 }
