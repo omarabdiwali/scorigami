@@ -24,7 +24,7 @@ const getGameData = async () => {
                 currentGame.teams.push(teamData);
             }
 
-            currentGame.status = getNestedProperty(event, ["status", "type", "name"]);
+            currentGame.status = getNestedProperty(event, ["status", "type", "state"]);
             currentGame.detail = getNestedProperty(event, ["status", "type", "shortDetail"]);
             validateData(currentGame, keys);
             games.push(currentGame);

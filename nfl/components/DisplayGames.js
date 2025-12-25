@@ -3,9 +3,9 @@ import { useEffect, useState } from "react";
 
 function GameCard({ game }) {
   const gameDate = new Date(game.date);
-  const isFinal = game.status == "STATUS_FINAL";
-  const isLive = game.status == "STATUS_IN_PROGRESS";
-  const isUpcoming = game.status == "STATUS_SCHEDULED";
+  const isFinal = game.status == "post";
+  const isLive = game.status == "in"
+  const isUpcoming = game.status == "pre";
   const team1Winner = parseInt(game.teams[0].score) > parseInt(game.teams[1].score);
   const team2Winner = parseInt(game.teams[1].score) > parseInt(game.teams[0].score);
 
@@ -116,15 +116,15 @@ export default function DisplayGames() {
           const sortedGames = data.games.sort((a, b) => {
             const aDate = new Date(a.date);
             const bDate = new Date(b.date);
-            const aIsLive = a.status == "STATUS_IN_PROGRESS";
-            const bIsLive = b.status == "STATUS_IN_PROGRESS";
+            const aIsLive = a.status == "in"
+            const bIsLive = b.status == "in"
             
             if (aIsLive && !bIsLive) return -1;
             if (!aIsLive && bIsLive) return 1;
             if (aIsLive && bIsLive) return aDate - bDate;
             
-            const aIsUpcoming = a.status == "STATUS_SCHEDULED";
-            const bIsUpcoming = b.status == "STATUS_SCHEDULED";
+            const aIsUpcoming = a.status == "pre";
+            const bIsUpcoming = b.status == "pre";
             
             if (aIsUpcoming && !bIsUpcoming) return -1;
             if (!aIsUpcoming && bIsUpcoming) return 1;

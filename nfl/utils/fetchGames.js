@@ -27,11 +27,11 @@ const getGameData = async () => {
                 currentGame.teams.push(teamData);
             }
 
-            currentGame.status = getNestedProperty(event, ["status", "type", "name"]);
+            currentGame.status = getNestedProperty(event, ["status", "type", "state"]);
             currentGame.detail = getNestedProperty(event, ["status", "type", "shortDetail"]);
 
             try {
-                if (currentGame.status == "STATUS_IN_PROGRESS") {
+                if (currentGame.status == "in") {
                     const possession = getNestedProperty(event, ["competitions", 0, "situation", "possession"], true);
                     const downDistance = getNestedProperty(event, ["competitions", 0, "situation", "downDistanceText"], true);
                     currentGame.possession = possession != undefined ? idToTeam[possession] : undefined;
