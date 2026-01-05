@@ -57,7 +57,7 @@ function GameCard({ game }) {
             <>
               <div>{gameDate.toLocaleDateString()}</div>
               <div className="text-gray-200 font-medium">
-                {gameDate.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
+                {gameDate.toLocaleTimeString([], { timeStyle: "short" })}
               </div>
             </>
           ) : (
@@ -71,7 +71,7 @@ function GameCard({ game }) {
 
 function LoadingSkeleton() {
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid p-2 gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {[...Array(6)].map((_, idx) => (
         <div key={idx} className="bg-white/5 border border-white/10 rounded-xl p-4 h-40 animate-pulse">
           <div className="flex justify-between mb-4">

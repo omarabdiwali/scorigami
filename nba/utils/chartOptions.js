@@ -5,14 +5,26 @@ import { useEffect, useState } from 'react';
 const circle = 'M 0, 0 m -4, 0 a 4,4 0 1,0 8,0 a 4,4 0 1,0 -8,0';
 const gradientColors = [
   '#0769c6',
+  '#1a80d9',
   '#33ccff',
-  '#00ff08ff',
-  '#80ff00',
+  '#00ccff',
+  '#00e6cc',
+  '#00ff99',
+  '#00ff08',
+  '#66ff33',
+  '#99ff00',
+  '#ccff00',
   '#ffff00',
+  '#ffed00',
   '#ffd700',
+  '#ffbf00',
   '#FFA500',
+  '#ff9900',
   '#ff8c00',
+  '#ff6600',
+  '#ff4000',
   '#fa0404',
+  '#e60000',
   '#c40000'
 ];
 
