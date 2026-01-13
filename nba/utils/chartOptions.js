@@ -3,7 +3,7 @@ import { Box, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 
 const circle = 'M 0, 0 m -4, 0 a 4,4 0 1,0 8,0 a 4,4 0 1,0 -8,0';
-const gradientColors = [
+export const gradientColors = [
   '#0769c6',
   '#1a80d9',
   '#33ccff',

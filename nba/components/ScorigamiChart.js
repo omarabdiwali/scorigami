@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ScatterChart } from '@mui/x-charts/ScatterChart';
-import { CustomMarker, CustomTooltip, getChartData, valueToColor } from '@/utils/chartOptions';
+import { CustomMarker, CustomTooltip, getChartData, valueToColor, gradientColors } from '@/utils/chartOptions';
 
 export default function ScorigamiChart() {
   const [series, setSeries] = useState();
@@ -77,27 +77,43 @@ export default function ScorigamiChart() {
   }
 
   return (
-    <ScatterChart
-      className='mt-6'
-      sx={{
-        '& .MuiChartsGrid-line': { stroke: '#191818ff', opacity: 0.8 },
-      }}
-      height={chartSize.height}
-      width={chartSize.width}
-      voronoiMaxRadius={'item'}
-      slots={{ marker: CustomMarker, tooltip: CustomTooltip }}
-      grid={{ horizontal: true, vertical: true }}
-      series={series}
-      yAxis={[{ 
-        label: 'Winner', 
-        labelStyle: { fill: 'white' }, 
-        tickLabelStyle: { fill: 'white' },
-      }]}
-      xAxis={[{ 
-        label: 'Loser', 
-        labelStyle: { fill: 'white' }, 
-        tickLabelStyle: { fill: 'white' },
-      }]}
-    />
+    <div className="flex flex-col items-center">
+      <ScatterChart
+        className='mt-6'
+        sx={{
+          '& .MuiChartsGrid-line': { stroke: '#191818ff', opacity: 0.8 },
+        }}
+        height={chartSize.height}
+        width={chartSize.width}
+        voronoiMaxRadius={'item'}
+        slots={{ marker: CustomMarker, tooltip: CustomTooltip }}
+        grid={{ horizontal: true, vertical: true }}
+        series={series}
+        yAxis={[{ 
+          label: 'Winner', 
+          labelStyle: { fill: 'white' }, 
+          tickLabelStyle: { fill: 'white' },
+        }]}
+        xAxis={[{ 
+          label: 'Loser', 
+          labelStyle: { fill: 'white' }, 
+          tickLabelStyle: { fill: 'white' },
+        }]}
+      />
+      
+      <div className="mt-6 flex flex-col items-center w-full max-w-md">
+        <div className="text-white text-sm mb-2">Frequency of Scores</div>
+        <div 
+          className="w-full h-6 rounded-md"
+          style={{
+            background: `linear-gradient(to right, ${gradientColors.join(', ')})`
+          }}
+        ></div>
+        <div className="flex justify-between w-full text-white text-xs mt-1">
+          <span>1</span>
+          <span>150+</span>
+        </div>
+      </div>
+    </div>
   )
 }
