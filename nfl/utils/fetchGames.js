@@ -29,6 +29,7 @@ const getGameData = async () => {
 
             currentGame.status = getNestedProperty(event, ["status", "type", "state"]);
             currentGame.detail = getNestedProperty(event, ["status", "type", "shortDetail"]);
+            currentGame.gameDetail = getNestedProperty(event, ["competitions", 0, "notes", 0, "headline"], true);
 
             try {
                 if (currentGame.status == "in") {

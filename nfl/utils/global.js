@@ -8,7 +8,10 @@ export const getNestedProperty = (data, keys, allowUndefined=false) => {
     const errorMessage = `Key '${keys.join(".")}' does not exist.`
 
     for (const key of keys) {
-        if (current === null || current === undefined) throw new Error(`${errorMessage} Missing ${prevKey}.${key}.`);
+        if (current === null || current === undefined) {
+            if (allowUndefined) return undefined;
+            else throw new Error(`${errorMessage} Missing ${prevKey}.${key}.`);
+        }
         current = current[key];
         prevKey = key;
     }
