@@ -30,17 +30,27 @@ function GameCard({ game }) {
         {game.teams.map((team, index) => (
           <div key={index} className="flex items-center justify-between">
             <div className="flex items-center space-x-3 flex-1">
+              <span className={`text-xs font-mono px-1.5 py-0.5 rounded ${
+                index === 0 
+                  ? 'bg-blue-500/10 text-blue-300 border border-blue-500/20' 
+                  : 'bg-gray-500/10 text-gray-300 border border-gray-500/20'
+              }`}>
+                {index === 0 ? 'H' : 'A'}
+              </span>
+              
               <img
                 src={team.logo}
                 alt={team.name}
                 className="w-10 h-10 object-contain flex-shrink-0"
               />
-              <span className="text-white font-medium text-sm truncate">
-                {team.name}
-              </span>
-              <span className="text-white opacity-40 font-medium text-[0.65rem] truncate">
-                ({team.record})
-              </span>
+              <div className="flex flex-col min-w-0 flex-1">
+                <span className="text-white font-medium text-sm truncate">
+                  {team.name}
+                </span>
+                <span className="text-white opacity-40 font-medium text-[0.65rem] truncate">
+                  ({team.record})
+                </span>
+              </div>
             </div>
             <span className={`text-lg font-bold min-w-[2rem] text-right ${isUpcoming && "hidden"} ${
               isFinal && ((index == 0 && team1Winner) ? 'text-green-400' : (index == 1 && team2Winner) ? 'text-green-400' : 'text-gray-400')
