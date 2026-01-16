@@ -48,7 +48,7 @@ function GameCard({ game }) {
                   {team.name}
                 </span>
                 <span className="text-white opacity-40 font-medium text-[0.65rem] truncate">
-                  ({team.record})
+                  {team.record}
                 </span>
               </div>
             </div>

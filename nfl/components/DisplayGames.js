@@ -58,7 +58,7 @@ function GameCard({ game }) {
                   </span>
                 </div>
                 <span className="text-white opacity-40 font-medium text-[0.65rem] truncate">
-                  ({team.record})
+                  {team.record}
                 </span>
               </div>
               {game.possession == team.name && (
