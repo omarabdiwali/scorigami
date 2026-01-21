@@ -5,8 +5,11 @@ const checkNewGames = async () => {
   try {
     return await getScorigamiData();
   } catch (e) {
-    console.log(e.message);
-    return [];
+    return {
+      status: "error",
+      error: `Error checking new games: ${e.message}`,
+      tweets: []
+    };
   }
 }
 
@@ -24,10 +27,17 @@ const tweetScores = async (tweets) => {
       await twitterClient.v2.tweet(tweet);
       newTweets += 1;
     }
-    return `${newTweets}/${tweets.length} new tweets posted!`
+    return {
+      status: "success",
+      error: null,
+      response: `${newTweets}/${tweets.length} new tweets posted!`
+    };
   } catch (e) {
-    console.log(e);
-    return `${newTweets}/${tweets.length} new tweets posted!`;
+    return {
+      status: "error",
+      error: `Error posting tweets: ${e.message}. Missing tweets: ${tweets.slice(newTweets)}`,
+      response: `${newTweets}/${tweets.length} new tweets posted!`
+    };
   }
 }
 
@@ -37,12 +47,20 @@ export default async function handler(req, res) {
     res.status(200).json({ result: "Invalid authentication..." });
     return;
   }
+
+  const responseData = await checkNewGames();
+  if (responseData.status === "error") {
+    res.status(500).json({ result: responseData.error });
+    return;
+  }
   
-  const tweetData = await checkNewGames();
-  if (tweetData.length > 0) {
+  if (responseData.tweets.length > 0) {
     const newTweets = await tweetScores(tweetData);
-    console.log(newTweets);
-    res.status(200).json({ result: newTweets })
+    if (newTweets.status === "success") {
+      res.status(200).json({ result: newTweets.response });
+    } else {
+      res.status(500).json({ result: newTweets.error + '\n' + newTweets.response });
+    }
   } else {
     res.status(200).json({ result: "Nothing new..." });
   }
