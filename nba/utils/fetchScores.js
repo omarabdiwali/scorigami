@@ -121,17 +121,10 @@ const getScorigamiData = async () => {
             tweetsToPost.push(tweet);
         }
 
-        return {
-            status: "success",
-            error: null,
-            tweets: tweetsToPost
-        };
+        return tweetsToPost;
     } catch (error) {
-        return {
-            status: "error", 
-            error: `Error fetching scorigami data: ${error.message || error}`, 
-            tweets: []
-        };
+        console.error("Error fetching scorigami data:", error.message || error);
+        return [];
     }
 }
 
