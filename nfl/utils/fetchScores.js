@@ -94,11 +94,13 @@ const getScorigamiData = async () => {
             const id = getNestedProperty(event, ["id"]);
             const completed = getNestedProperty(event, ["status", "type", "completed"]);
             const date = getNestedProperty(event, ["date"]);
+            const gameDetail = getNestedProperty(event, ["competitions", 0, "notes", 0, "headline"], true);
+            const isProBowl = gameDetail == "Pro Bowl Games";
 
             gameData.id = id;
             gameData.date = normalizeDate(date);
 
-            if (!completed || await hasBeenProcessed(id)) continue;
+            if (!completed || isProBowl || await hasBeenProcessed(id)) continue;
             for (const team of getNestedProperty(event, ["competitions", 0, "competitors"])) {
                 if (getNestedProperty(team, ["winner"]) && gameData.winner == undefined) {
                     gameData.winner = getNestedProperty(team, ["team", "displayName"]);

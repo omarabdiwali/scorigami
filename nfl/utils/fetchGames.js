@@ -18,10 +18,11 @@ const getGameData = async () => {
                 const teamData = {};
                 const dataKeys = ["name", "score", "logo", "record"];
                 const teamId = getNestedProperty(team, ["id"]);
+                const record = getNestedProperty(team, ["records", 0, "summary"], true);
                 teamData.name = getNestedProperty(team, ["team", "shortDisplayName"]);
                 teamData.score = getNestedProperty(team, ["score"]);
                 teamData.logo = getNestedProperty(team, ["team", "logo"]);
-                teamData.record = getNestedProperty(team, ["records", 0, "summary"])
+                teamData.record = record ? record : "";
                 idToTeam[teamId] = teamData.name;
                 validateData(teamData, dataKeys);
                 currentGame.teams.push(teamData);
