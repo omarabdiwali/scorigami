@@ -10,6 +10,14 @@ function GameCard({ game }) {
 
   return (
     <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] flex flex-col h-full">
+      {game.gameDetail && (
+        <div className="mb-4">
+          <div className="text-xs font-medium text-gray-300 text-center bg-white/5 rounded-md py-1 px-2">
+            {game.gameDetail}
+          </div>
+        </div>
+      )}
+      
       <div className="flex justify-between items-center mb-4">
         <span className={`text-xs font-medium px-2 py-1 rounded-full ${
           isUpcoming ? 'bg-blue-500/20 text-blue-400' :
