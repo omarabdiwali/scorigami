@@ -47,7 +47,7 @@ function GameCard({ game }) {
               </span>
               
               <img
-                src={team.logo}
+                src={team.logo ? team.logo : '/default.png'}
                 alt={team.name}
                 className="w-10 h-10 object-contain flex-shrink-0"
               />

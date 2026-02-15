@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 function GameCard({ game }) {
   const gameDate = new Date(game.date);
   const isFinal = game.status == "post";
-  const isLive = game.status == "in"
+  const isLive = game.status == "in";
   const isUpcoming = game.status == "pre";
   const team1Winner = parseInt(game.teams[0].score) > parseInt(game.teams[1].score);
   const team2Winner = parseInt(game.teams[1].score) > parseInt(game.teams[0].score);
@@ -47,7 +47,7 @@ function GameCard({ game }) {
               </span>
               
               <img
-                src={team.logo}
+                src={team.logo ? team.logo : '/default.png'}
                 alt={team.name}
                 className="w-10 h-10 object-contain flex-shrink-0"
               />

@@ -87,20 +87,38 @@ const getScorigamiData = async () => {
         const tweetsToPost = [];
         const url = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard";
         const data = await getRequest(url);
+        const leagueInfo = getNestedProperty(data, ["leagues", 0], true);
+        let startDate, endDate;
+        
+        if (leagueInfo) {
+            const calendar = getNestedProperty(leagueInfo, ["calendar"], true);
+            if (calendar) {
+                const regular = calendar.find((val) => val.label == "Regular Season");
+                const playoffs = calendar.find((val) => val.label == "Postseason");
+                if (regular && playoffs) {
+                    startDate = regular.startDate ? new Date(regular.startDate) : null;
+                    endDate = playoffs.endDate ? new Date(playoffs.endDate) : null;
+                }
+            }
+        }
         
         for (const event of data.events) {
             let winnerFirst = true;
+            let isValidGame = false;
             const gameData = {};
             const id = getNestedProperty(event, ["id"]);
             const completed = getNestedProperty(event, ["status", "type", "completed"]);
             const date = getNestedProperty(event, ["date"]);
             const gameDetail = getNestedProperty(event, ["competitions", 0, "notes", 0, "headline"], true);
             const isProBowl = gameDetail == "Pro Bowl Games";
-
+            if (startDate && endDate) {
+                isValidGame = startDate <= new Date(date) && endDate >= new Date(date);
+            }
+            
             gameData.id = id;
             gameData.date = normalizeDate(date);
-
-            if (!completed || isProBowl || await hasBeenProcessed(id)) continue;
+            
+            if (!completed || !isValidGame || isProBowl || await hasBeenProcessed(id)) continue;
             for (const team of getNestedProperty(event, ["competitions", 0, "competitors"])) {
                 if (getNestedProperty(team, ["winner"]) && gameData.winner == undefined) {
                     gameData.winner = getNestedProperty(team, ["team", "displayName"]);
