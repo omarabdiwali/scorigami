@@ -75,21 +75,6 @@ export default function Home() {
             />
             NFL Scorigami
           </a>
-          <a
-            className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-            href="https://github.com/omarabdiwali/scorigami"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              aria-hidden
-              src="/github.svg"
-              alt="GitHub icon"
-              width={20}
-              height={20}
-            />
-            Source Code
-          </a>
         </footer>
       </div>
     </div>
