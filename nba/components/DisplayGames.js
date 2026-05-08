@@ -31,14 +31,19 @@ function BoxScoreModal({ game, onClose }) {
       try {
         const resp = await fetch("/api/boxScore", { 
           method: "POST", 
-          body: JSON.stringify({ gameId: game.id, status }) 
+          body: JSON.stringify({ gameId: game.id, status, teamOrder: [team1.name, team2.name] }) 
         });
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
         const data = await resp.json();
         if (data.result !== "Invalid request.") {
+          if (data.result.teams != undefined && data.result.teams != null) {
+            game.teams[0].score = data.result.teams[0].score;
+            game.teams[1].score = data.result.teams[1].score;
+            setTeam1Score(parseInt(data.result.teams[0].score));
+            setTeam2Score(parseInt(data.result.teams[1].score));
+          }
+
           setGameData(data.result);
-          setTeam1Score(parseInt(data.result.teams ? data.result.teams[0].score : 0));
-          setTeam2Score(parseInt(data.result.teams ? data.result.teams[1].score : 0));
         } else {
           setError("Box score not available");
         }
@@ -63,7 +68,6 @@ function BoxScoreModal({ game, onClose }) {
   if (!game) return null;
 
   const isFinal = status === "post";
-  const isLive = status === "in";
   const isUpcoming = status === "pre";
 
   const team1 = teams[0];
@@ -172,8 +176,6 @@ function BoxScoreModal({ game, onClose }) {
                   {new Date(date).toLocaleTimeString([], { timeStyle: "short" })}
                 </div>
               </>
-            ) : isLive ? (
-              <span className="text-red-400">Live</span>
             ) : (
               <span>{detail}</span>
             )}

@@ -1,6 +1,6 @@
 import { getRequest, getNestedProperty, validateData } from './global.js';
 
-const getBoxScoreData = async (gameId) => {
+const getBoxScoreData = async (gameId, teamOrder) => {
     try {
         const boxScore = { 'teams': [], 'teamPoints': {} };
         const url = `https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event=${gameId}`;
@@ -9,7 +9,7 @@ const getBoxScoreData = async (gameId) => {
         for (const team of getNestedProperty(data, ['boxscore', 'players'])) {
             const teamKeys = ['id', 'team', 'score', 'data'];
             const teamId = getNestedProperty(team, ['team', 'id'])
-            const teamName = getNestedProperty(team, ['team', 'displayName']);
+            const teamName = getNestedProperty(team, ['team', 'name']);
             const teamStats = getNestedProperty(team, ['statistics', 0]);
             const teamData = []
             let teamScore = 0;
@@ -41,7 +41,11 @@ const getBoxScoreData = async (gameId) => {
 
             const teamObj = { id: teamId, team: teamName, score: teamScore, data: teamData };
             validateData(teamObj, teamKeys);
-            boxScore['teams'].push(teamObj);
+            if (teamName == teamOrder[0]) {
+                boxScore['teams'].unshift(teamObj);
+            } else {
+                boxScore['teams'].push(teamObj);
+            }
         }
 
         return boxScore;
