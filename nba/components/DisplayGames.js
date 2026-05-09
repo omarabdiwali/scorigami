@@ -10,6 +10,7 @@ function BoxScoreModal({ game, onClose }) {
   const [activeTeamIdx, setActiveTeamIdx] = useState(0);
   const [team1Score, setTeam1Score] = useState(parseInt(teams[0].score));
   const [team2Score, setTeam2Score] = useState(parseInt(teams[1].score));
+  const [clock, setClock] = useState(detail);
   const [isSmallHeight, setIsSmallHeight] = useState(false);
 
   useEffect(() => {
@@ -39,8 +40,11 @@ function BoxScoreModal({ game, onClose }) {
           if (data.result.teams != undefined && data.result.teams != null) {
             game.teams[0].score = data.result.teams[0].score;
             game.teams[1].score = data.result.teams[1].score;
+            game.detail = data.result.clock;
+            game.status = data.result.status;
             setTeam1Score(parseInt(data.result.teams[0].score));
             setTeam2Score(parseInt(data.result.teams[1].score));
+            setClock(data.result.clock);
           }
 
           setGameData(data.result);
@@ -104,6 +108,13 @@ function BoxScoreModal({ game, onClose }) {
         </button>
 
         <div className={`${isSmallHeight ? 'p-2' : 'p-4 sm:p-6'} border-b border-white/10 flex-shrink-0`}>
+          {game.gameDetail && (
+              <div className="mb-4">
+                <div className="text-sm font-medium text-gray-300 text-center rounded-md py-1 px-2">
+                  {game.gameDetail}
+                </div>
+              </div>
+            )}
           
           {/* Mobile layout */}
           <div className="sm:hidden flex flex-col space-y-2">
@@ -177,7 +188,7 @@ function BoxScoreModal({ game, onClose }) {
                 </div>
               </>
             ) : (
-              <span>{detail}</span>
+              <span>{clock}</span>
             )}
           </div>
         </div>

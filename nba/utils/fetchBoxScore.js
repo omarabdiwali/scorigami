@@ -5,6 +5,10 @@ const getBoxScoreData = async (gameId, teamOrder) => {
         const boxScore = { 'teams': [], 'teamPoints': {} };
         const url = `https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event=${gameId}`;
         const data = await getRequest(url);
+        const clock = getNestedProperty(data, ['header', 'competitions', 0, 'status', 'type', 'shortDetail']);
+        const status = getNestedProperty(data, ['header', 'competitions', 0, 'status', 'type', 'state']);
+        boxScore['clock'] = clock;
+        boxScore['status'] = status;
 
         for (const team of getNestedProperty(data, ['boxscore', 'players'])) {
             const teamKeys = ['id', 'team', 'score', 'data'];
