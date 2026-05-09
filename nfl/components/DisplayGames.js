@@ -1,6 +1,255 @@
 import { useEffect, useState } from "react";
+import DisplayBoxScore from "./DisplayBoxScore";
 
-function GameCard({ game }) {
+function BoxScoreModal({ game, onClose }) {
+  const { teams, status, detail, date } = game;
+
+  const [gameData, setGameData] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [activeTeamIdx, setActiveTeamIdx] = useState(0);
+  const [team1Score, setTeam1Score] = useState(parseInt(teams[0].score));
+  const [team2Score, setTeam2Score] = useState(parseInt(teams[1].score));
+  const [clock, setClock] = useState(detail);
+  const [downDistance, setDownDistance] = useState(game.downDistance);
+  const [possession, setPossession] = useState(game.possession);
+  const [isSmallHeight, setIsSmallHeight] = useState(false);
+
+  useEffect(() => {
+    const checkHeight = () => {
+      setIsSmallHeight(window.innerHeight < 500);
+    };
+    
+    checkHeight();
+    window.addEventListener('resize', checkHeight);
+    return () => window.removeEventListener('resize', checkHeight);
+  }, []);
+
+  useEffect(() => {
+    if (!game) return;
+    
+    const fetchBoxScore = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const resp = await fetch("/api/boxScore", { 
+          method: "POST", 
+          body: JSON.stringify({ gameId: game.id, status, teamOrder: [team1.name, team2.name] }) 
+        });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const data = await resp.json();
+        if (data.result !== "Invalid request.") {
+          if (data.result.teams != undefined && data.result.teams != null) {
+            game.teams[0].score = data.result.teams[0].score;
+            game.teams[1].score = data.result.teams[1].score;
+            game.detail = data.result.clock;
+            game.status = data.result.status;
+            game.downDistance = data.result.downDistance;
+            setTeam1Score(parseInt(data.result.teams[0].score));
+            setTeam2Score(parseInt(data.result.teams[1].score));
+            setClock(data.result.clock);
+            setDownDistance(data.result.downDistance);
+            setPossession(data.result.possession);
+          }
+
+          setGameData(data.result);
+        } else {
+          setError("Box score not available");
+        }
+      } catch (err) {
+        console.error("Error fetching box score:", err);
+        setError("Failed to load box score");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBoxScore();
+  }, [game]);
+
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, []);
+
+  if (!game) return null;
+
+  const isLive = status === "in";
+  const isFinal = status === "post";
+  const isUpcoming = status === "pre";
+
+  const team1 = teams[0];
+  const team2 = teams[1];
+  const team1Winner = isFinal && team1Score > team2Score;
+  const team2Winner = isFinal && team2Score > team1Score;
+
+  const handleBackdropClick = (e) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
+  return (
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/70 backdrop-blur-sm"
+      onClick={handleBackdropClick}
+    >
+      <div 
+        className="relative bg-gray-900 border border-white/10 rounded-2xl shadow-2xl w-full max-w-4xl flex flex-col overflow-hidden"
+        style={{ 
+          height: isSmallHeight ? '95vh' : '85vh',
+          maxHeight: isSmallHeight ? '95vh' : '90vh'
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          onClick={onClose}
+          className="cursor-pointer absolute top-2 right-2 sm:top-4 sm:right-4 z-10 p-1.5 sm:p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+
+        <div className={`${isSmallHeight ? 'p-2' : 'p-4 sm:p-6'} border-b border-white/10 flex-shrink-0`}>
+          {game.gameDetail && (
+              <div className="mb-4">
+                <div className="text-sm font-medium text-gray-300 text-center rounded-md py-1 px-2">
+                  {game.gameDetail}
+                </div>
+              </div>
+            )}
+          
+          {/* Mobile layout */}
+          <div className="sm:hidden flex flex-col space-y-2">
+            <div className="flex items-center justify-center space-x-3">
+              <img src={team1.logo || '/default.png'} alt={team1.name} className={`object-contain ${isSmallHeight ? 'w-8 h-8' : 'w-12 h-12'}`} />
+              <div className="text-center">
+                <div className={`text-white font-medium ${isSmallHeight ? 'text-xs' : 'text-sm'}`}>{team1.name}</div>
+                <div className="text-white opacity-40 text-xs">{team1.series ? team1.series : team1.record}</div>
+                {!isUpcoming && (
+                  <div className={`font-bold mt-1 ${
+                    isFinal && team1Winner ? 'text-green-400' : possession == team1.name ? 'text-orange-400' : 'text-white'
+                  } ${isSmallHeight ? 'text-lg' : 'text-xl'}`}>
+                    {team1Score}
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            <div className="flex items-center justify-center space-x-3">
+              <img src={team2.logo || '/default.png'} alt={team2.name} className={`object-contain ${isSmallHeight ? 'w-8 h-8' : 'w-12 h-12'}`} />
+              <div className="text-center">
+                <div className={`text-white font-medium ${isSmallHeight ? 'text-xs' : 'text-sm'}`}>{team2.name}</div>
+                <div className="text-white opacity-40 text-xs">{team2.series ? team2.series : team2.record}</div>
+                {!isUpcoming && (
+                  <div className={`font-bold mt-1 ${
+                    isFinal && team2Winner ? 'text-green-400' : possession == team2.name ? 'text-orange-400' : 'text-white'
+                  } ${isSmallHeight ? 'text-lg' : 'text-xl'}`}>
+                    {team2Score}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+          
+          {/* Desktop layout */}
+          <div className="hidden sm:flex justify-between items-center">
+            <div className="flex flex-col items-center flex-1">
+              <img src={team1.logo || '/default.png'} alt={team1.name} className={`object-contain mb-2 ${isSmallHeight ? 'w-12 h-12' : 'w-16 h-16'}`} />
+              <span className={`text-white font-medium ${isSmallHeight ? 'text-xs' : 'text-sm'}`}>{team1.name}</span>
+              <span className="text-white opacity-40 text-xs">{team1.series ? team1.series : team1.record}</span>
+              {!isUpcoming && (
+                <span className={`font-bold mt-1 ${
+                  isFinal && team1Winner ? 'text-green-400' : 'text-white'
+                } ${isSmallHeight ? 'text-xl' : 'text-2xl'}`}>
+                  {team1Score}
+                </span>
+              )}
+              {possession == team1.name && (
+                  <img 
+                    src={"/football.png"} 
+                    alt={"Poss."} 
+                    className="w-10 h-10" 
+                  />
+                )}
+            </div>
+            <div className="text-gray-400 font-bold text-xl mx-4">VS</div>
+            <div className="flex flex-col items-center flex-1">
+              <img src={team2.logo || '/default.png'} alt={team2.name} className={`object-contain mb-2 ${isSmallHeight ? 'w-12 h-12' : 'w-16 h-16'}`} />
+              <span className={`text-white font-medium ${isSmallHeight ? 'text-xs' : 'text-sm'}`}>{team2.name}</span>
+              <span className="text-white opacity-40 text-xs">{team2.series ? team2.series : team2.record}</span>
+              {!isUpcoming && (
+                <span className={`font-bold mt-1 ${
+                  isFinal && team2Winner ? 'text-green-400' : 'text-white'
+                } ${isSmallHeight ? 'text-xl' : 'text-2xl'}`}>
+                  {team2Score}
+                </span>
+              )}
+              {possession == team2.name && (
+                  <img 
+                    src={"/football.png"} 
+                    alt={"Poss."} 
+                    className="w-10 h-10" 
+                  />
+                )}
+            </div>
+          </div>
+
+          <div className={`text-center text-gray-300 ${isSmallHeight ? 'text-xs mt-1' : 'text-sm mt-3 sm:mt-4'}`}>
+            {isUpcoming ? (
+              <>
+                <div>{new Date(date).toLocaleDateString()}</div>
+                <div className="text-gray-200 font-medium">
+                  {new Date(date).toLocaleTimeString([], { timeStyle: "short" })}
+                </div>
+              </>
+            ) : (
+              <>
+                <div>{clock}</div>
+                {isLive && downDistance ? <div className="pt-1 text-xs text-gray-400">{downDistance}</div> : ""}
+              </>
+            )}
+          </div>
+        </div>
+
+        <div className={`flex border-b border-white/10 flex-shrink-0 ${isSmallHeight ? 'py-1' : 'py-2 sm:py-3'}`}>
+          {teams.map((team, index) => (
+            <button
+              key={index}
+              className={`flex-1 transition-colors ${
+                activeTeamIdx === index
+                  ? 'cursor-auto text-blue-500'
+                  : 'cursor-pointer text-gray-400 hover:text-white'
+              } ${isSmallHeight ? 'text-xs py-1' : 'text-xs sm:text-sm py-2 sm:py-3'}`}
+              onClick={() => setActiveTeamIdx(index)}
+            >
+              <span className="inline">{team.name}</span>
+            </button>
+          ))}
+        </div>
+
+        <div className="flex-1 no-scrollbar overflow-auto p-3 sm:p-6">
+          {loading ? (
+            <div className="flex justify-center items-center h-full">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
+          ) : error ? (
+            <div className="text-center py-12 text-red-400">{error}</div>
+          ) : (
+            <div className="no-scrollbar overflow-x-auto">
+              <DisplayBoxScore data={gameData} loading={false} activeTeamIdx={activeTeamIdx} />
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function GameCard({ game, onSelect }) {
   const gameDate = new Date(game.date);
   const isFinal = game.status == "post";
   const isLive = game.status == "in";
@@ -9,7 +258,10 @@ function GameCard({ game }) {
   const team2Winner = parseInt(game.teams[1].score) > parseInt(game.teams[0].score);
 
   return (
-    <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] flex flex-col h-full">
+    <div
+      onClick={() => onSelect(game)}
+      className="cursor-pointer bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] flex flex-col h-full"
+    >
       {game.gameDetail && (
         <div className="mb-4">
           <div className="text-xs font-medium text-gray-300 text-center bg-white/5 rounded-md py-1 px-2">
@@ -128,6 +380,7 @@ export default function DisplayGames() {
   const [games, setGames] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedGame, setSelectedGame] = useState(null);
 
   useEffect(() => {
     async function loadGames() {
@@ -175,6 +428,14 @@ export default function DisplayGames() {
     loadGames();
   }, []);
 
+  const handleSelectGame = (game) => {
+    setSelectedGame(game);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedGame(null);
+  };
+
   if (loading) {
     return <LoadingSkeleton />;
   }
@@ -213,9 +474,15 @@ export default function DisplayGames() {
       </div>
       <div className="grid gap-4 sm:grid-cols-2 p-6 lg:grid-cols-3 xl:grid-cols-4">
         {games.map((game, idx) => (
-          <GameCard key={`${game.date}-${idx}`} game={game} />
+          <GameCard key={`${game.date}-${idx}`} game={game} onSelect={handleSelectGame} />
         ))}
       </div>
+      {selectedGame && (
+        <BoxScoreModal 
+          game={selectedGame} 
+          onClose={handleCloseModal} 
+        />
+      )}
     </>
   );
 }

@@ -2,15 +2,18 @@ import { getRequest, getNestedProperty, validateData } from './global';
 
 const getGameData = async () => {
     try {
-        const requiredKeys = ["date", "teams", "status", "detail"];
+        const requiredKeys = ["id", "date", "teams", "status", "detail"];
         const games = [];
         const url = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard";
         const data = await getRequest(url);
 
         for (const event of data.events) {
+            const id = getNestedProperty(event, ["id"]);
             const date = getNestedProperty(event, ["date"]);
             const currentGame = {};
             const idToTeam = {};
+            
+            currentGame.id = id;
             currentGame.date = date;
             currentGame.teams = [];
 
@@ -19,10 +22,12 @@ const getGameData = async () => {
                 const dataKeys = ["name", "score", "record"];
                 const teamId = getNestedProperty(team, ["id"]);
                 const record = getNestedProperty(team, ["records", 0, "summary"], true);
+                
                 teamData.name = getNestedProperty(team, ["team", "shortDisplayName"]);
                 teamData.score = getNestedProperty(team, ["score"]);
                 teamData.logo = getNestedProperty(team, ["team", "logo"], true);
                 teamData.record = record ? record : "";
+                
                 idToTeam[teamId] = teamData.name;
                 validateData(teamData, dataKeys);
                 currentGame.teams.push(teamData);
