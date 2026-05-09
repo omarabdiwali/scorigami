@@ -109,12 +109,10 @@ function BoxScoreModal({ game, onClose }) {
 
         <div className={`${isSmallHeight ? 'p-2' : 'p-4 sm:p-6'} border-b border-white/10 flex-shrink-0`}>
           {game.gameDetail && (
-              <div className="mb-4">
-                <div className="text-sm font-medium text-gray-300 text-center rounded-md py-1 px-2">
-                  {game.gameDetail}
-                </div>
-              </div>
-            )}
+            <div className="text-sm font-medium text-gray-300 text-center mb-4 py-1 px-2">
+              {game.gameDetail}
+            </div>
+          )}
           
           {/* Mobile layout */}
           <div className="sm:hidden flex flex-col space-y-2">

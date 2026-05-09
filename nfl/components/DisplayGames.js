@@ -115,10 +115,8 @@ function BoxScoreModal({ game, onClose }) {
 
         <div className={`${isSmallHeight ? 'p-2' : 'p-4 sm:p-6'} border-b border-white/10 flex-shrink-0`}>
           {game.gameDetail && (
-              <div className="mb-4">
-                <div className="text-sm font-medium text-gray-300 text-center rounded-md py-1 px-2">
-                  {game.gameDetail}
-                </div>
+              <div className="text-sm font-medium text-gray-300 text-center mb-4 py-1 px-2">
+                {game.gameDetail}
               </div>
             )}
           
@@ -128,7 +126,7 @@ function BoxScoreModal({ game, onClose }) {
               <img src={team1.logo || '/default.png'} alt={team1.name} className={`object-contain ${isSmallHeight ? 'w-8 h-8' : 'w-12 h-12'}`} />
               <div className="text-center">
                 <div className={`text-white font-medium ${isSmallHeight ? 'text-xs' : 'text-sm'}`}>{team1.name}</div>
-                <div className="text-white opacity-40 text-xs">{team1.series ? team1.series : team1.record}</div>
+                <div className="text-white opacity-40 text-xs">{team1.record}</div>
                 {!isUpcoming && (
                   <div className={`font-bold mt-1 ${
                     isFinal && team1Winner ? 'text-green-400' : possession == team1.name ? 'text-orange-400' : 'text-white'
@@ -143,7 +141,7 @@ function BoxScoreModal({ game, onClose }) {
               <img src={team2.logo || '/default.png'} alt={team2.name} className={`object-contain ${isSmallHeight ? 'w-8 h-8' : 'w-12 h-12'}`} />
               <div className="text-center">
                 <div className={`text-white font-medium ${isSmallHeight ? 'text-xs' : 'text-sm'}`}>{team2.name}</div>
-                <div className="text-white opacity-40 text-xs">{team2.series ? team2.series : team2.record}</div>
+                <div className="text-white opacity-40 text-xs">{team2.record}</div>
                 {!isUpcoming && (
                   <div className={`font-bold mt-1 ${
                     isFinal && team2Winner ? 'text-green-400' : possession == team2.name ? 'text-orange-400' : 'text-white'

@@ -1,5 +1,5 @@
 function TeamTable({ team, labels, descriptions }) {
-    const headClass = "border-b dark:border-slate-600 p-2 pt-0 pb-3 text-slate-400 dark:text-slate-200 text-left";
+    const headClass = "border-b dark:border-slate-600 p-2 pt-0 pb-3 text-slate-400 dark:text-slate-200";
     const dataClass = "border-b border-slate-300 dark:border-slate-700 p-2 text-slate-500 dark:text-slate-400";
 
     return (
@@ -7,25 +7,25 @@ function TeamTable({ team, labels, descriptions }) {
             <table className="table-auto min-w-[800px] w-full text-sm sm:text-xs">
                 <thead>
                     <tr>
-                        <th className={headClass} title="Number">#</th>
-                        <th className={headClass} title="Player">Player</th>
+                        <th className={`${headClass} text-center`} title="Number">#</th>
+                        <th className={`${headClass} text-left`} title="Player">Player</th>
                         {labels.map((label, idx) => {
                             return (
-                                <th className={headClass} key={`${team.team}-${label}`} title={descriptions[idx]}>{label}</th>
+                                <th className={`${headClass} text-center`} key={`${team.team}-${label}`} title={descriptions[idx]}>{label}</th>
                             )
                         })}
                     </tr>
                 </thead>
                 <tbody>
                     {team.data?.map((player, _) => {
-                        const playerInfo = player.starter ? `${player.position} • ${player.shortName}` : `    ${player.shortName}`;
+                        const playerInfo = player.starter ? `${player.position} • ${player.shortName}` : `${player.shortName}`;
                         return (
                             <tr key={player.id} id={player.id}>
-                                <td className={dataClass}>{player.jersey}</td>
-                                <td className={`${dataClass} ${player.starter ? "font-black": ""}`} title={player.displayName}>{playerInfo}</td>
+                                <td className={`${dataClass} text-center`}>{player.jersey}</td>
+                                <td className={`${dataClass} text-left ${player.starter ? "font-black": ""}`} title={player.displayName}>{playerInfo}</td>
                                 {player.stats.map((stat, sIdx) => {
                                     return (
-                                        <td className={dataClass} key={`${player.shortName}-${sIdx}`}>{stat}</td>
+                                        <td className={`${dataClass} text-center`} key={`${player.shortName}-${sIdx}`}>{stat}</td>
                                     )
                                 })}
                             </tr>
