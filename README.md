@@ -19,6 +19,7 @@ The Scorigami project consists of multiple sub-projects, each tracking a differe
 	+ Visit the website at: https://nfl-scorigami.vercel.app
 	+ [Source code](https://github.com/omarabdiwali/scorigami/tree/main/nfl)
 	+ The application checks for new game scores every minute on gamedays and tweets new scores from the [@NFLScorigamiBot](https://x.com/NFLScorigamiBot) Twitter account if a scorigami occurs.
+	+ Includes an interactive box score modal that displays detailed player statistics and team performance metrics when viewing game details.
 
 ## Technical Details
 
@@ -41,6 +42,11 @@ The NFL application includes a live game center that displays:
 * Final results with winning teams highlighted
 * Team logos, names, and current records
 * Game status indicators, showing which team has possession
+* **Interactive Box Score Modal**: Click on any game card to view detailed game information including:
+  * Informative player statistics, broken down into their own sub-categories (passing, rushing, receiving, etc.)
+  * Responsive design that works on mobile and desktop
+  * Tabbed interface to switch between teams
+  * Automatic info updates when viewing live games
 
 ### NBA Features
 
@@ -86,5 +92,5 @@ To use a sub-project, follow the usage instructions in its README:
 
 1. Open the application in a web browser: `http://localhost:3000`
 2. The application will display the latest scorigami data, including an interactive chart showcasing all unique scores and a live game center with current and upcoming games.
-3. **For NBA**: Click on any game card to open the box score modal with detailed player statistics. Use the tabs to switch between teams.
+3. Click on any game card to open the box score modal with detailed player statistics. Use the tabs to switch between teams.
 4. If a scorigami occurs, it will be tweeted from the respective Twitter account.
