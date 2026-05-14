@@ -19,10 +19,11 @@ function TeamTable({ team, labels, descriptions }) {
                 <tbody>
                     {team.data?.map((player, _) => {
                         const playerInfo = player.starter ? `${player.position} • ${player.shortName}` : `${player.shortName}`;
+                        const playerTitle = `${player.position} - ${player.displayName}`;
                         return (
                             <tr key={player.id} id={player.id}>
                                 <td className={`${dataClass} text-center`}>{player.jersey}</td>
-                                <td className={`${dataClass} text-left ${player.starter ? "font-black": ""}`} title={player.displayName}>{playerInfo}</td>
+                                <td className={`${dataClass} text-left ${player.starter ? "font-black": ""}`} title={playerTitle}>{playerInfo}</td>
                                 {player.stats.map((stat, sIdx) => {
                                     return (
                                         <td className={`${dataClass} text-center`} key={`${player.shortName}-${sIdx}`}>{stat}</td>
