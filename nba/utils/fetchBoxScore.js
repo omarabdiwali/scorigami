@@ -27,7 +27,7 @@ const getBoxScoreData = async (gameId, teamOrder) => {
 
             for (let i = 0; i < quarters; i++) {
                 if (linescoreData == undefined || i >= linescoreData.length) {
-                    linescore.push('0');
+                    linescore.push('-');
                 } else {
                     linescore.push(linescoreData.at(i).displayValue);
                 }
