@@ -34,7 +34,7 @@ function LineScoreTable({ className, data }) {
           {Array(quarters).fill(0).map((_, qtr) => {
             const score = qtr >= team1.points.length ? '0' : team1.points.at(qtr);
             return (
-              <td className={`${dataClass} text-center`}>{score}</td>
+              <td key={`${team1.name}-${qtr}`} className={`${dataClass} text-center`}>{score}</td>
             )
           })}
           <td className={`${dataClass} font-black text-center`}>{team1.points.at(-1)}</td>
@@ -44,7 +44,7 @@ function LineScoreTable({ className, data }) {
           {Array(quarters).fill(0).map((_, qtr) => {
             const score = qtr >= team2.points.length ? '0' : team2.points.at(qtr);
             return (
-              <td className={`${dataClass} text-center`}>{score}</td>
+              <td key={`${team2.name}-${qtr}`} className={`${dataClass} text-center`}>{score}</td>
             )
           })}
           <td className={`${dataClass} font-black text-center`}>{team2.points.at(-1)}</td>
@@ -117,8 +117,8 @@ function BoxScoreModal({ game, onClose }) {
             setTeam2Score(parseInt(data.result.teams[1].score));
             setClock(data.result.clock);
             
-            const linescoreTeam1 = { name: team1.name, points: data.result.teams[0].linescore };
-            const linescoreTeam2 = { name: team2.name, points: data.result.teams[1].linescore };
+            const linescoreTeam1 = { name: data.result.teams[0].team, points: data.result.teams[0].linescore };
+            const linescoreTeam2 = { name: data.result.teams[1].team, points: data.result.teams[1].linescore };
             setLineScoreData([linescoreTeam1, linescoreTeam2]);
           }
 

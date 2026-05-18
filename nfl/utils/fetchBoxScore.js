@@ -17,12 +17,26 @@ const getBoxScoreData = async (gameId, teamOrder) => {
         boxScore.downDistance = downDistance;
 
         for (const team of getNestedProperty(data, ['boxscore', 'players'])) {
-            const teamKeys = ['id', 'team', 'score', 'data'];
+            const teamKeys = ['id', 'team', 'score', 'data', 'linescore'];
             const teamId = getNestedProperty(team, ['team', 'id'])
             const teamName = getNestedProperty(team, ['team', 'shortDisplayName']);
             const teamData = [];
             const teamIndex = getNestedProperty(teamsInfo, [0, 'team', 'id']) == teamId ? 0 : 1
             const teamScore = getNestedProperty(teamsInfo, [teamIndex, 'score']);
+            
+            const linescore = [];
+            const linescoreData = getNestedProperty(teamsInfo, [teamIndex, 'linescores'], true);
+            const periods = linescoreData != undefined ? Math.max(linescoreData.length, 4) : 4;
+
+            for (let i = 0; i < periods; i++) {
+                if (linescoreData == undefined || i >= linescoreData.length) {
+                    linescore.push('-');
+                } else {
+                    linescore.push(linescoreData.at(i).displayValue);
+                }
+            }
+
+            linescore.push(teamScore);
 
             for (const stats of getNestedProperty(team, ['statistics'])) {
                 const positionStats = {};
@@ -53,7 +67,7 @@ const getBoxScoreData = async (gameId, teamOrder) => {
                 boxScore.possession = possessionId != undefined ? possessionId == teamId ? teamName : undefined : undefined;
             }
 
-            const teamObj = { id: teamId, team: teamName, score: teamScore, data: teamData };
+            const teamObj = { id: teamId, team: teamName, score: teamScore, linescore, data: teamData };
             validateData(teamObj, teamKeys);
             
             if (teamName == teamOrder[0]) {
@@ -63,7 +77,6 @@ const getBoxScoreData = async (gameId, teamOrder) => {
             }
         }
 
-        boxScore.downDistance = '4th and Long';
         return boxScore;
     } catch (error) {
         console.error("Error fetching box score data:", error.message || error);

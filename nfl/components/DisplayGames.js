@@ -1,6 +1,59 @@
 import { useEffect, useState } from "react";
 import DisplayBoxScore from "./DisplayBoxScore";
 
+function LineScoreTable({ className, data }) {
+  const headClass = "border-b dark:border-slate-600 p-2 pt-0 pb-2 text-slate-400 dark:text-slate-200";
+  const dataClass = "border-b border-slate-300 dark:border-slate-700 p-2 text-slate-500 dark:text-slate-400";
+
+  if (!data) return;
+  const team1 = data.at(0);
+  const team2 = data.at(1);
+
+  if (!team1 || !team2 || !team1.points || !team2.points) return;
+  const quarters = Math.max(4, Math.max(team1.points.length, team2.points.length) - 1);
+
+  return (
+    <table className={`${className} table-auto text-sm sm:text-[1.25vh]`}>
+      <thead>
+        <tr>
+          <th className={`${headClass} text-left`}>Name</th>
+          {Array(quarters).fill(0).map((_, qtr) => {
+            const label = qtr < 5 ? ['1', '2', '3', '4', 'OT'].at(qtr) : `${qtr-3}OT`;
+            return (
+              <th key={label} className={`${headClass} text-center`}>
+                {label}
+              </th>
+            )
+          })}
+          <th className={`${headClass} text-center`}>T</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td className={`${dataClass} text-left`}>{team1.name}</td>
+          {Array(quarters).fill(0).map((_, qtr) => {
+            const score = qtr >= team1.points.length ? '0' : team1.points.at(qtr);
+            return (
+              <td key={`${team1.name}-${qtr}`} className={`${dataClass} text-center`}>{score}</td>
+            )
+          })}
+          <td className={`${dataClass} font-black text-center`}>{team1.points.at(-1)}</td>
+        </tr>
+        <tr>
+          <td title={team2.name} className={`${dataClass} text-left`}>{team2.name}</td>
+          {Array(quarters).fill(0).map((_, qtr) => {
+            const score = qtr >= team2.points.length ? '0' : team2.points.at(qtr);
+            return (
+              <td key={`${team2.name}-${qtr}`} className={`${dataClass} text-center`}>{score}</td>
+            )
+          })}
+          <td className={`${dataClass} font-black text-center`}>{team2.points.at(-1)}</td>
+        </tr>
+      </tbody>
+    </table>
+  )
+}
+
 function BoxScoreModal({ game, onClose }) {
   const { teams, status, detail, date } = game;
 
@@ -14,15 +67,33 @@ function BoxScoreModal({ game, onClose }) {
   const [downDistance, setDownDistance] = useState(game.downDistance);
   const [possession, setPossession] = useState(game.possession);
   const [isSmallHeight, setIsSmallHeight] = useState(false);
+  const [showLinescore, setShowLinescore] = useState(false);
+  const [linescoreData, setLineScoreData] = useState(null);
 
   useEffect(() => {
-    const checkHeight = () => {
-      setIsSmallHeight(window.innerHeight < 500);
+    let timeoutId = null;
+    const debouncedCheckHeight = (skipTimeout=false) => {
+      if (skipTimeout) {
+        const height = window.innerHeight;
+        setIsSmallHeight(height < 500);
+        setShowLinescore(height > 680);
+        return;
+      }
+
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        const height = window.innerHeight;
+        setIsSmallHeight(height < 500);
+        setShowLinescore(height > 680);
+      }, 150)
     };
     
-    checkHeight();
-    window.addEventListener('resize', checkHeight);
-    return () => window.removeEventListener('resize', checkHeight);
+    debouncedCheckHeight(true);
+    window.addEventListener('resize', debouncedCheckHeight);
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener('resize', debouncedCheckHeight);
+    }
   }, []);
 
   useEffect(() => {
@@ -45,11 +116,18 @@ function BoxScoreModal({ game, onClose }) {
             game.detail = data.result.clock;
             game.status = data.result.status;
             game.downDistance = data.result.downDistance;
+            game.possession = data.result.possession;
             setTeam1Score(parseInt(data.result.teams[0].score));
             setTeam2Score(parseInt(data.result.teams[1].score));
             setClock(data.result.clock);
             setDownDistance(data.result.downDistance);
             setPossession(data.result.possession);
+
+            if (data.result.teams[0].linescore && data.result.teams[1].linescore) {
+              const linescoreTeam1 = { name: data.result.teams[0].team, points: data.result.teams[0].linescore };
+              const linescoreTeam2 = { name: data.result.teams[1].team, points: data.result.teams[1].linescore };
+              setLineScoreData([linescoreTeam1, linescoreTeam2])
+            }
           }
 
           setGameData(data.result);
@@ -118,7 +196,13 @@ function BoxScoreModal({ game, onClose }) {
               <div className="text-sm font-medium text-gray-300 text-center mb-4 py-1 px-2">
                 {game.gameDetail}
               </div>
-            )}
+          )}
+          {showLinescore && (
+            <div className="text-center">
+              {!isUpcoming && <div className="sm:text-sm text-xs">{clock}</div>}
+              {isLive && downDistance && <div className="pt-1 pb-2 text-xs sm:pb-0 text-gray-400">{downDistance}</div>}
+            </div>
+          )}
           
           {/* Mobile layout */}
           <div className="sm:hidden flex flex-col space-y-2">
@@ -196,7 +280,7 @@ function BoxScoreModal({ game, onClose }) {
             </div>
           </div>
 
-          <div className={`text-center text-gray-300 ${isSmallHeight ? 'text-xs mt-1' : 'text-sm mt-3 sm:mt-4'}`}>
+          <div className={`${isUpcoming ? 'text-center' : 'flex justify-center'} text-gray-300 ${isSmallHeight ? 'text-xs mt-1' : 'text-sm mt-3 sm:mt-4'}`}>
             {isUpcoming ? (
               <>
                 <div>{new Date(date).toLocaleDateString()}</div>
@@ -206,8 +290,12 @@ function BoxScoreModal({ game, onClose }) {
               </>
             ) : (
               <>
-                <div>{clock}</div>
-                {isLive && downDistance ? <div className="pt-1 text-xs text-gray-400">{downDistance}</div> : ""}
+                {showLinescore ? <LineScoreTable data={linescoreData} /> : (
+                  <div className="text-center">
+                    <div>{clock}</div>
+                    {isLive && downDistance && <div className="pt-1 text-xs text-gray-400">{downDistance}</div>} 
+                  </div>
+                )}
               </>
             )}
           </div>
