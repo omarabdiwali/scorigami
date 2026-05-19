@@ -32,7 +32,7 @@ function LineScoreTable({ className, data }) {
         <tr>
           <td className={`${dataClass} text-left`}>{team1.name}</td>
           {Array(quarters).fill(0).map((_, qtr) => {
-            const score = qtr >= team1.points.length ? '0' : team1.points.at(qtr);
+            const score = qtr >= team1.points.length ? '-' : team1.points.at(qtr);
             return (
               <td key={`${team1.name}-${qtr}`} className={`${dataClass} text-center`}>{score}</td>
             )
@@ -42,7 +42,7 @@ function LineScoreTable({ className, data }) {
         <tr>
           <td title={team2.name} className={`${dataClass} text-left`}>{team2.name}</td>
           {Array(quarters).fill(0).map((_, qtr) => {
-            const score = qtr >= team2.points.length ? '0' : team2.points.at(qtr);
+            const score = qtr >= team2.points.length ? '-' : team2.points.at(qtr);
             return (
               <td key={`${team2.name}-${qtr}`} className={`${dataClass} text-center`}>{score}</td>
             )
