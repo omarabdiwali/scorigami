@@ -5,6 +5,7 @@ export default function Document() {
     <Html lang="en">
       <Head>
         <meta name="google-site-verification" content="FT-zhFm6Eyxo29YZJaAICTigJzNgDzoWVue_2yv7cSs" />
+        <link rel="icon" href="/basketball.svg" />
       </Head>
       <body className="antialiased">
         <Main />

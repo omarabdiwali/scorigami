@@ -356,7 +356,7 @@ function GameCard({ game, onSelect }) {
         </div>
       )}
       
-      <div className="flex justify-between items-center mb-3">
+      <div className="flex mt-auto justify-between items-center mb-3">
         <span className={`text-xs font-medium px-2 py-1 rounded-full ${
           isUpcoming ? 'bg-blue-500/20 text-blue-400' :
           isLive ? 'bg-red-500/20 text-red-400' :
@@ -372,7 +372,7 @@ function GameCard({ game, onSelect }) {
         )}
       </div>
 
-      <div className="flex flex-col space-y-3">
+      <div className="flex mt-auto mb-4 flex-col space-y-3">
         {game.teams.map((team, index) => (
           <div key={index} className="flex items-center justify-between">
             <div className="flex items-center space-x-3 flex-1">
@@ -416,7 +416,7 @@ function GameCard({ game, onSelect }) {
         ))}
       </div>
 
-      <div className="mt-4 pt-3 border-t border-white/10">
+      <div className="mt-auto pt-3 border-t border-white/10">
         <div className="text-xs text-gray-300 text-center">
           {isUpcoming ? (
             <>
