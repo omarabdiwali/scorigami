@@ -1,3 +1,5 @@
+import DisplayPlayByPlay from "./DisplayPlayByPlay";
+
 function TeamTable({ team, labels, descriptions }) {
     const headClass = "border-b dark:border-slate-600 p-2 pt-0 pb-3 text-slate-400 dark:text-slate-200";
     const dataClass = "border-b border-slate-300 dark:border-slate-700 p-2 text-slate-500 dark:text-slate-400";
@@ -38,7 +40,7 @@ function TeamTable({ team, labels, descriptions }) {
     )
 }
 
-export default function DisplayBoxScore({ data, loading, activeTeamIdx }) {
+export default function DisplayBoxScore({ data, plays, loading, activeTeamIdx }) {
     if (loading) {
         return <div>Loading...</div>;
     }
@@ -47,6 +49,11 @@ export default function DisplayBoxScore({ data, loading, activeTeamIdx }) {
         return <div className="text-center py-8 text-gray-400">No box score data available</div>;
     }
 
+    const showPlayByPlay = activeTeamIdx !== undefined && activeTeamIdx == data.teams.length;
+    if (showPlayByPlay) {
+        return <DisplayPlayByPlay data={plays} />
+    }
+    
     const teamsToShow = activeTeamIdx !== undefined ? [data.teams[activeTeamIdx]] : data.teams;
 
     return (

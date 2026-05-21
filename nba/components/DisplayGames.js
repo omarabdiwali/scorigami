@@ -67,6 +67,7 @@ function BoxScoreModal({ game, onClose }) {
   const [isSmallHeight, setIsSmallHeight] = useState(false);
   const [showLinescore, setShowLinescore] = useState(false);
   const [linescoreData, setLineScoreData] = useState(null);
+  const [playsData, setPlaysData] = useState(null);
 
   useEffect(() => {
     let timeoutId = null;
@@ -120,6 +121,10 @@ function BoxScoreModal({ game, onClose }) {
             const linescoreTeam1 = { name: data.result.teams[0].team, points: data.result.teams[0].linescore };
             const linescoreTeam2 = { name: data.result.teams[1].team, points: data.result.teams[1].linescore };
             setLineScoreData([linescoreTeam1, linescoreTeam2]);
+
+            if (data.result.plays) {
+              setPlaysData({ homeTeam: teams[0].name, awayTeam: teams[1].name, plays: data.result.plays });
+            }
           }
 
           setGameData(data.result);
@@ -284,9 +289,19 @@ function BoxScoreModal({ game, onClose }) {
               <span className="inline">{team.name}</span>
             </button>
           ))}
+          <button
+            className={`flex-1 transition-colors ${
+                activeTeamIdx === teams.length
+                  ? 'cursor-auto text-blue-500'
+                  : 'cursor-pointer text-gray-400 hover:text-white'
+              } ${isSmallHeight ? 'text-xs py-1' : 'text-xs sm:text-sm py-2 sm:py-3'}`}
+              onClick={() => setActiveTeamIdx(teams.length)}
+            >
+              <span className="inline">Play-By-Play</span>
+          </button>
         </div>
 
-        <div className="flex-1 no-scrollbar overflow-auto p-3 sm:p-6">
+        <div className={`flex-1 overflow-auto no-scrollbar ${activeTeamIdx === teams.length ? '' : 'p-3 sm:p-6'}`}>
           {loading ? (
             <div className="flex justify-center items-center h-full">
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
@@ -294,8 +309,8 @@ function BoxScoreModal({ game, onClose }) {
           ) : error ? (
             <div className="text-center py-12 text-red-400">{error}</div>
           ) : (
-            <div className="no-scrollbar overflow-x-auto">
-              <DisplayBoxScore data={gameData} loading={false} activeTeamIdx={activeTeamIdx} />
+            <div className={`relative overflow-x-auto`}>
+              <DisplayBoxScore data={gameData} plays={playsData} loading={false} activeTeamIdx={activeTeamIdx} />
             </div>
           )}
         </div>

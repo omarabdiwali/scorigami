@@ -20,6 +20,14 @@ export const getNestedProperty = (data, keys, allowUndefined=false) => {
     return current;
 }
 
+export const ordinalEnding = (number) => {
+    const i = number % 10, j = number % 100;
+    if (i == 1 && j !== 11) return "st";
+    if (i == 2 && j !== 12) return "nd";
+    if (i == 3 && j !== 13) return "rd";
+    return "th";
+}
+
 export const validateData = (data, keys) => {
     for (const key of keys) {
         if (data[key] === null || data[key] === undefined) {

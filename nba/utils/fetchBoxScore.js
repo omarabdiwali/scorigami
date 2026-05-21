@@ -9,7 +9,9 @@ const getBoxScoreData = async (gameId, teamOrder) => {
         const teamsInfo = getNestedProperty(data, ['header', 'competitions', 0, 'competitors']);
         const clock = getNestedProperty(data, ['header', 'competitions', 0, 'status', 'type', 'shortDetail']);
         const status = getNestedProperty(data, ['header', 'competitions', 0, 'status', 'type', 'state']);
-        
+        const allPlays = getNestedProperty(data, ['plays'], true);
+        const teamIdToLogo = {};
+    
         boxScore.clock = clock;
         boxScore.status = status;
 
@@ -24,6 +26,7 @@ const getBoxScoreData = async (gameId, teamOrder) => {
             const teamData = [];
             const linescore = [];
             const quarters = linescoreData != undefined ? Math.max(linescoreData.length, 4) : 4;
+            teamIdToLogo[teamId] = getNestedProperty(team, ['team', 'logo'], true);
 
             for (let i = 0; i < quarters; i++) {
                 if (linescoreData == undefined || i >= linescoreData.length) {
@@ -71,6 +74,31 @@ const getBoxScoreData = async (gameId, teamOrder) => {
             }
         }
 
+        const plays = {};
+
+        if (allPlays) {
+            for (const play of allPlays) {
+                const type = getNestedProperty(play, ['type', 'text']);
+                if (type == 'Substitution' || type == 'End Game' || type == 'Offensive Foul Turnover' || type == "End Period") continue;
+
+                const id = getNestedProperty(play, ['id']);
+                const text = getNestedProperty(play, ['text']);
+                if (text.includes("offensive team rebound")) continue;
+                const awayScore = getNestedProperty(play, ['awayScore']);
+                const homeScore = getNestedProperty(play, ['homeScore']);
+                const clock = getNestedProperty(play, ['clock', 'displayValue'])
+                const scoreValue = getNestedProperty(play, ['scoreValue']);
+                const teamId = getNestedProperty(play, ['team', 'id'], true);
+                const teamLogo = teamId ? teamIdToLogo[teamId] : null;
+
+                const item = { id, text, clock, awayScore, homeScore, scoreValue, teamLogo, type };
+                const quarter = getNestedProperty(play, ['period', 'number']);
+                if (!(quarter in plays)) plays[quarter] = [];
+                plays[quarter].unshift(item);
+            }
+        }
+        
+        boxScore.plays = plays;
         return boxScore;
     } catch (error) {
         console.error("Error fetching box score data:", error.message || error);

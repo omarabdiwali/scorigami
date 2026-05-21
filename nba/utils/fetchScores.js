@@ -1,7 +1,7 @@
 import dbConnect from './dbConnect';
 import NBAScores from '@/models/NBAScores';
 import ProcessedGames from '@/models/ProcessedGames';
-import { getRequest, getNestedProperty, validateData } from './global';
+import { getRequest, getNestedProperty, ordinalEnding, validateData } from './global';
 
 const normalizeDate = (stringDate) => {
     const date = new Date(stringDate);
@@ -16,14 +16,6 @@ const translateDateToString = (date) => {
     const day = date.getUTCDate();
 
     return `${month} ${day}, ${year}`;
-}
-
-const ordinalEnding = (number) => {
-    const i = number % 10, j = number % 100;
-    if (i == 1 && j !== 11) return "st";
-    if (i == 2 && j !== 12) return "nd";
-    if (i == 3 && j !== 13) return "rd";
-    return "th";
 }
 
 const hasBeenProcessed = async (id) => {
