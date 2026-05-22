@@ -301,7 +301,7 @@ function BoxScoreModal({ game, onClose }) {
           </button>
         </div>
 
-        <div className={`flex-1 overflow-auto no-scrollbar ${activeTeamIdx === teams.length ? '' : 'p-3 sm:p-6'}`}>
+        <div className={`flex-1 no-scrollbar ${activeTeamIdx === teams.length ? 'overflow-hidden' : 'overflow-auto p-3 sm:p-6'}`}>
           {loading ? (
             <div className="flex justify-center items-center h-full">
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>

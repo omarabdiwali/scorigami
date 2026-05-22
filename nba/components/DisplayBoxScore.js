@@ -51,7 +51,13 @@ export default function DisplayBoxScore({ data, plays, loading, activeTeamIdx })
 
     const showPlayByPlay = activeTeamIdx !== undefined && activeTeamIdx == data.teams.length;
     if (showPlayByPlay) {
-        return <DisplayPlayByPlay data={plays} />
+        return (
+            <>
+                <div className="w-full">
+                    <DisplayPlayByPlay data={plays} />
+                </div>
+            </>
+        )
     }
     
     const teamsToShow = activeTeamIdx !== undefined ? [data.teams[activeTeamIdx]] : data.teams;

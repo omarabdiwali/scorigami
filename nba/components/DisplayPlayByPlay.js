@@ -46,21 +46,24 @@ export default function DisplayPlayByPlay({ data }) {
     }
 
     const scrollRef = useRef(null);
-    const refs = {};
+    const stickyRef = useRef(null);
+    const quarterRefs = useRef({});
     const quarters = ['1st', '2nd', '3rd', '4th', 'OT'];
     let initialColor = '';
-    
-    for (const key of Object.keys(data.plays)) {
-        const intKey = parseInt(key) - 1;
-        const qtr = intKey < 5 ? quarters.at(intKey) : `${intKey-3}OT`;
-        if (qtr in refs) continue;
-        refs[qtr] = useRef(null);
-    }
+    const quarterKeys = data && data.plays ? Object.keys(data.plays) : [];
+    const lastKey = quarterKeys.at(-1);
+    const intKey = lastKey ? parseInt(lastKey) - 1 : 0;
+    const [curButton, setCurButton] = useState(intKey < 5 ? quarters.at(intKey) : `${intKey-3}OT`);
 
     const scrollToQuarter = (qtr) => {
-        refs[qtr]?.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        quarterRefs.current[qtr]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         setCurButton(qtr);
     };
+
+    useEffect(() => {
+        if (!stickyRef.current) return;
+        stickyRef.current.scrollIntoView({ behavior: 'instant', block: 'start' });
+    }, [])
 
     useEffect(() => {
         let timeoutId = null;
@@ -68,17 +71,15 @@ export default function DisplayPlayByPlay({ data }) {
             clearTimeout(timeoutId);
             timeoutId = setTimeout(() => {
                 let nearestKey = null;
-                let closestPos = null;
+                let closestPos = -Infinity;
 
-                for (const qtr of Object.keys(refs)) {
-                    const ref = refs[qtr];
-                    if (ref.current) {
-                        const topPosition = ref.current.getBoundingClientRect().top;
-                        if (topPosition < 600) {
-                            if (closestPos == null || topPosition > closestPos) {
-                                nearestKey = qtr;
-                                closestPos = topPosition;
-                            }
+                for (const qtr of Object.keys(quarterRefs.current)) {
+                    const el = quarterRefs.current[qtr];
+                    if (el) {
+                        const topPosition = el.getBoundingClientRect().top;
+                        if (topPosition < 600 && topPosition > closestPos) {
+                            nearestKey = qtr;
+                            closestPos = topPosition;
                         }
                     }
                 }
@@ -87,35 +88,32 @@ export default function DisplayPlayByPlay({ data }) {
                     setCurButton(nearestKey);
                 }
 
-            }, 30)
-        }
+            }, 30);
+        };
 
-        if (!scrollRef.current) return;
-        scrollRef.current.addEventListener('scroll', changeCurButton);
+        const currentScroll = scrollRef.current;
+        if (!currentScroll) return;
+        currentScroll.addEventListener('scroll', changeCurButton);
 
         return () => {
             clearTimeout(timeoutId);
-            if (!scrollRef.current) return;
-            scrollRef.current.removeEventListener('scroll', changeCurButton);
-        }
-    }, [refs, scrollRef.current])
-
-    const quarterKeys = Object.keys(data.plays);
-    const lastKey = quarterKeys.at(-1);
-    const intKey = parseInt(lastKey) - 1;
-    const [curButton, setCurButton] = useState(intKey < 5 ? quarters.at(intKey) : `${intKey-3}OT`);
+            if (currentScroll) {
+                currentScroll.removeEventListener('scroll', changeCurButton);
+            }
+        };
+    }, []);
 
     return (
-        <div ref={scrollRef} id="test" className="flex flex-col h-[85vh] overflow-auto no-scrollbar">
+        <div ref={scrollRef} className="flex flex-col min-h-[30vh] max-h-[40vh] overflow-auto no-scrollbar">
             {/* Sticky Quarter Navigation */}
-            <div className="sticky top-0 z-30 bg-gray-900 space-x-2 flex flex-row max-w-full pb-2 pt-2 px-2">
+            <div ref={stickyRef} className="sticky top-0 z-30 bg-gray-900 space-x-2 flex flex-row max-w-full pb-2 pt-2 px-2">
                 {quarterKeys.map((key) => {
                     const intKey = parseInt(key) - 1;
                     const qtr = intKey < 5 ? quarters.at(intKey) : `${intKey-3}OT`;
                     return (
                         <button 
                             onClick={() => scrollToQuarter(qtr)} 
-                            className={`flex-1 p-2 text-xs sm:text-sm ${curButton == qtr ? `cursor-auto text-blue-300` : 'cursor-pointer hover:text-slate-400'}`}
+                            className={`flex-1 p-2 text-xs sm:text-sm ${curButton == qtr ? `cursor-auto text-blue-300` : 'cursor-pointer rounded hover:bg-gray-800 hover:text-slate-400'}`}
                             key={`Button-${qtr}`}
                         >
                             {qtr}
@@ -126,8 +124,8 @@ export default function DisplayPlayByPlay({ data }) {
             
             {/* Scrollable Content */}
             <div className="flex-1">
-                {quarterKeys.reverse().map((key) => {
-                    initialColor = initialColor == 'bg-slate-800' ? 'bg-gray-700' : 'bg-slate-800';
+                {[...quarterKeys].reverse().map((key) => {
+                    initialColor = initialColor == 'bg-slate-800' ? 'bg-gray-800' : 'bg-slate-800';
                     const intKey = parseInt(key) - 1;
                     const plays = data.plays[key];
                     const curQuarter = intKey < 5 ? quarters.at(intKey) : `${intKey-3}OT`;
@@ -151,7 +149,7 @@ export default function DisplayPlayByPlay({ data }) {
                         homeTeam={data.homeTeam} 
                         awayTeam={data.awayTeam} 
                         bgColor={initialColor}
-                        quarterRef={refs[curQuarter]}
+                        quarterRef={(el) => { quarterRefs.current[curQuarter] = el; }}
                     />
                 })}
             </div>
