@@ -40,16 +40,17 @@ function TeamTable({ team, labels, descriptions }) {
     )
 }
 
-export default function DisplayBoxScore({ data, plays, loading, activeTeamIdx }) {
+export default function DisplayBoxScore({ data, plays, loading, activeSection }) {
     if (loading) {
         return <div>Loading...</div>;
     }
 
     if (!data || !data.teams || data.teams.length === 0) {
-        return <div className="text-center py-8 text-gray-400">No box score data available</div>;
+        const info = activeSection == 'plays' ? 'No play-by-play data available' : 'No box score data available';
+        return <div className={`text-center ${activeSection == 'plays' ? 'sm:py-14 py-11' : 'py-8'} text-gray-400`}>{info}</div>;
     }
 
-    const showPlayByPlay = activeTeamIdx !== undefined && activeTeamIdx == data.teams.length;
+    const showPlayByPlay = activeSection == 'plays';
     if (showPlayByPlay) {
         return (
             <>
@@ -60,7 +61,7 @@ export default function DisplayBoxScore({ data, plays, loading, activeTeamIdx })
         )
     }
     
-    const teamsToShow = activeTeamIdx !== undefined ? [data.teams[activeTeamIdx]] : data.teams;
+    const teamsToShow = activeSection !== undefined ? [data.teams[activeSection]] : data.teams;
 
     return (
         <>

@@ -60,7 +60,7 @@ function BoxScoreModal({ game, onClose }) {
   const [gameData, setGameData] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [activeTeamIdx, setActiveTeamIdx] = useState(0);
+  const [activeSection, setActiveSection] = useState(0);
   const [team1Score, setTeam1Score] = useState(parseInt(teams[0].score));
   const [team2Score, setTeam2Score] = useState(parseInt(teams[1].score));
   const [clock, setClock] = useState(detail);
@@ -280,28 +280,28 @@ function BoxScoreModal({ game, onClose }) {
             <button
               key={index}
               className={`flex-1 transition-colors ${
-                activeTeamIdx === index
+                activeSection === index
                   ? 'cursor-auto text-blue-500'
                   : 'cursor-pointer text-gray-400 hover:text-white'
               } ${isSmallHeight ? 'text-xs py-1' : 'text-xs sm:text-sm py-2 sm:py-3'}`}
-              onClick={() => setActiveTeamIdx(index)}
+              onClick={() => setActiveSection(index)}
             >
               <span className="inline">{team.name}</span>
             </button>
           ))}
           <button
             className={`flex-1 transition-colors ${
-                activeTeamIdx === teams.length
+                activeSection === 'plays'
                   ? 'cursor-auto text-blue-500'
                   : 'cursor-pointer text-gray-400 hover:text-white'
               } ${isSmallHeight ? 'text-xs py-1' : 'text-xs sm:text-sm py-2 sm:py-3'}`}
-              onClick={() => setActiveTeamIdx(teams.length)}
+              onClick={() => setActiveSection('plays')}
             >
               <span className="inline">Play-By-Play</span>
           </button>
         </div>
 
-        <div className={`flex-1 no-scrollbar ${activeTeamIdx === teams.length ? 'overflow-hidden' : 'overflow-auto p-3 sm:p-6'}`}>
+        <div className={`flex-1 no-scrollbar ${activeSection === 'plays' ? 'overflow-hidden' : 'overflow-auto p-3 sm:p-6'}`}>
           {loading ? (
             <div className="flex justify-center items-center h-full">
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
@@ -310,7 +310,7 @@ function BoxScoreModal({ game, onClose }) {
             <div className="text-center py-12 text-red-400">{error}</div>
           ) : (
             <div className={`relative overflow-x-auto`}>
-              <DisplayBoxScore data={gameData} plays={playsData} loading={false} activeTeamIdx={activeTeamIdx} />
+              <DisplayBoxScore data={gameData} plays={playsData} loading={false} activeSection={activeSection} />
             </div>
           )}
         </div>

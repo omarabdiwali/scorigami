@@ -113,7 +113,7 @@ export default function DisplayPlayByPlay({ data }) {
                     return (
                         <button 
                             onClick={() => scrollToQuarter(qtr)} 
-                            className={`flex-1 p-2 text-xs sm:text-sm ${curButton == qtr ? `cursor-auto text-blue-300` : 'cursor-pointer rounded hover:bg-gray-800 hover:text-slate-400'}`}
+                            className={`flex-1 p-2 text-xs sm:text-sm ${curButton == qtr ? `cursor-auto text-blue-400` : 'cursor-pointer rounded hover:bg-gray-800 hover:text-slate-400'}`}
                             key={`Button-${qtr}`}
                         >
                             {qtr}
