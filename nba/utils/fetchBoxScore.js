@@ -82,7 +82,7 @@ const getBoxScoreData = async (gameId, teamOrder) => {
                 if (type == 'Substitution' || type == 'End Game' || type == 'Offensive Foul Turnover' || type == "End Period") continue;
 
                 const id = getNestedProperty(play, ['id']);
-                const text = getNestedProperty(play, ['text']);
+                let text = getNestedProperty(play, ['text']);
                 if (text.includes("offensive team rebound")) continue;
                 const awayScore = getNestedProperty(play, ['awayScore']);
                 const homeScore = getNestedProperty(play, ['homeScore']);
@@ -90,6 +90,9 @@ const getBoxScoreData = async (gameId, teamOrder) => {
                 const scoreValue = getNestedProperty(play, ['scoreValue']);
                 const teamId = getNestedProperty(play, ['team', 'id'], true);
                 const teamLogo = teamId ? teamIdToLogo[teamId] : null;
+
+                text = text.replace(" 's", "'s");
+                text = text.replace("shot clock turnover", "Shot clock turnover")
 
                 const item = { id, text, clock, awayScore, homeScore, scoreValue, teamLogo, type };
                 const quarter = getNestedProperty(play, ['period', 'number']);
