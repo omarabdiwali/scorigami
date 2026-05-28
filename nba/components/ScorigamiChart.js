@@ -4,7 +4,6 @@ import { CustomMarker, CustomTooltip, getChartData, valueToColor, gradientColors
 
 export default function ScorigamiChart() {
   const [series, setSeries] = useState();
-  const [chartSize, setChartSize] = useState({});
   const [loading, setLoading] = useState(true);
 
   const translateDocs = (docs) => {
@@ -32,19 +31,6 @@ export default function ScorigamiChart() {
   }
 
   useEffect(() => {
-    const handleResize = () => {
-      setChartSize({ 
-        width: window.innerWidth * 0.95,
-        height: window.innerHeight * 0.95
-      })
-    }
-    window.addEventListener("resize", handleResize);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    }
-  }, [])
-
-  useEffect(() => {
     const localData = getChartData();
     if (localData.length == 0) {
       fetch("/api/games").then(res => res.json()).then((data) => {
@@ -52,18 +38,10 @@ export default function ScorigamiChart() {
         localStorage.setItem("nbaChartData", JSON.stringify(series));
         localStorage.setItem("nbaChartDate", new Date().toISOString());
         setSeries(series);
-        setChartSize({
-          width: window.innerWidth * 0.95,
-          height: window.innerHeight * 0.95
-        })
         setLoading(false);
       })
     } else {
       setSeries(localData);
-      setChartSize({
-        width: window.innerWidth * 0.95,
-        height: window.innerHeight * 0.95
-      })
       setLoading(false);
     }
   }, [])
@@ -78,29 +56,27 @@ export default function ScorigamiChart() {
 
   return (
     <div className="flex flex-col items-center">
-      <ScatterChart
-        className='mt-6'
-        sx={{
-          '& .MuiChartsGrid-line': { stroke: '#191818ff', opacity: 0.8 },
-        }}
-        height={chartSize.height}
-        width={chartSize.width}
-        voronoiMaxRadius={'item'}
-        slots={{ marker: CustomMarker, tooltip: CustomTooltip }}
-        grid={{ horizontal: true, vertical: true }}
-        series={series}
-        yAxis={[{ 
-          label: 'Winner', 
-          labelStyle: { fill: 'white' }, 
-          tickLabelStyle: { fill: 'white' },
-        }]}
-        xAxis={[{ 
-          label: 'Loser', 
-          labelStyle: { fill: 'white' }, 
-          tickLabelStyle: { fill: 'white' },
-        }]}
-      />
-      
+      <div className='mt-6 w-[95vw] h-[95vh] max-w-[95vw] max-h-[95vh]'>
+        <ScatterChart
+          sx={{
+            '& .MuiChartsGrid-line': { stroke: '#191818ff', opacity: 0.8 },
+          }}
+          voronoiMaxRadius={'item'}
+          slots={{ marker: CustomMarker, tooltip: CustomTooltip }}
+          grid={{ horizontal: true, vertical: true }}
+          series={series}
+          yAxis={[{ 
+            label: 'Winner', 
+            labelStyle: { fill: 'white' }, 
+            tickLabelStyle: { fill: 'white' },
+          }]}
+          xAxis={[{ 
+            label: 'Loser', 
+            labelStyle: { fill: 'white' }, 
+            tickLabelStyle: { fill: 'white' },
+          }]}
+        />
+      </div>
       <div className="mt-6 flex flex-col items-center w-full max-w-md">
         <div className="text-white text-sm mb-2">Frequency of Scores</div>
         <div 
