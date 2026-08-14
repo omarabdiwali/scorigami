@@ -9,12 +9,28 @@ const getBoxScoreData = async (gameId, teamOrder) => {
         const teamsInfo = getNestedProperty(data, ['header', 'competitions', 0, 'competitors']);
         const clock = getNestedProperty(data, ['header', 'competitions', 0, 'status', 'type', 'shortDetail']);
         const status = getNestedProperty(data, ['header', 'competitions', 0, 'status', 'type', 'state']);
-        const possessionId = getNestedProperty(data, ["header", "competitions", 0, "situation", "possession"], true);
-        const downDistance = getNestedProperty(data, ["header", "competitions", 0, "situation", "downDistanceText"], true);
+        const allPlays = getNestedProperty(data, ["drives", "current", "plays"], true);
+        
+        let downDistance = undefined;
+        let possession = undefined;
+        
+        for (const team of teamsInfo) {
+            const hasPossession = getNestedProperty(team, ["possession"], true);
+            if (hasPossession) {
+                possession = getNestedProperty(team, ["team", "name"]);
+                break;
+            }
+        }
+
+        if (allPlays) {
+            const lastPlay = allPlays.at(-1);
+            downDistance = lastPlay ? getNestedProperty(lastPlay, ['end', 'downDistanceText'], true) : undefined;
+        }
 
         boxScore.clock = clock;
         boxScore.status = status;
         boxScore.downDistance = downDistance;
+        boxScore.possession = possession;
 
         for (const team of getNestedProperty(data, ['boxscore', 'players'])) {
             const teamKeys = ['id', 'team', 'score', 'data', 'linescore'];
@@ -61,10 +77,6 @@ const getBoxScoreData = async (gameId, teamOrder) => {
                 }
 
                 teamData.push(positionStats);
-            }
-
-            if (status == "in" && boxScore.possession == undefined) {
-                boxScore.possession = possessionId != undefined ? possessionId == teamId ? teamName : undefined : undefined;
             }
 
             const teamObj = { id: teamId, team: teamName, score: teamScore, linescore, data: teamData };
