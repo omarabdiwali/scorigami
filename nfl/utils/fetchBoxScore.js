@@ -29,7 +29,7 @@ const getBoxScoreData = async (gameId, teamOrder) => {
 
         boxScore.clock = clock;
         boxScore.status = status;
-        boxScore.downDistance = downDistance;
+        boxScore.downDistance = clock != "Halftime" ? downDistance : undefined;
         boxScore.possession = possession;
 
         for (const team of getNestedProperty(data, ['boxscore', 'players'])) {

@@ -42,7 +42,7 @@ const getGameData = async () => {
                     const possession = getNestedProperty(event, ["competitions", 0, "situation", "possession"], true);
                     const downDistance = getNestedProperty(event, ["competitions", 0, "situation", "downDistanceText"], true);
                     currentGame.possession = possession != undefined ? idToTeam[possession] : undefined;
-                    currentGame.downDistance = downDistance;
+                    currentGame.downDistance = currentGame.detail != "Halftime" ? downDistance : undefined;
                 }
             } catch (error) { }
             
