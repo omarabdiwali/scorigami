@@ -5,8 +5,7 @@ const checkNewGames = async () => {
   try {
     return await getScorigamiData();
   } catch (e) {
-    console.log(e.message);
-    return [];
+    return { success: false, data: e.message };
   }
 }
 
@@ -32,18 +31,20 @@ const tweetScores = async (tweets) => {
 }
 
 export default async function handler(req, res) {
-  const { token } = req.body;
-  if (token !== process.env.LAMBDA_TOKEN) {
-    res.status(200).json({ result: "Invalid authentication..." });
-    return;
+  const authHeader = req.headers.authorization;
+  if (authHeader !== `Bearer ${process.env.LAMBDA_TOKEN}`) {
+    return res.status(401).json({ result: "Invalid authentication..." });
   }
   
-  const tweetData = await checkNewGames();
-  if (tweetData.length > 0) {
-    const newTweets = await tweetScores(tweetData);
-    console.log(newTweets);
-    res.status(200).json({ result: newTweets })
+  const gamesInfo = await checkNewGames();
+  if (!gamesInfo.success) {
+    return res.status(500).json({ result: gamesInfo.data });
+  }
+  
+  if (gamesInfo.data.length > 0) {
+    const newTweets = await tweetScores(gamesInfo.data);
+    return res.status(200).json({ result: newTweets })
   } else {
-    res.status(200).json({ result: "Nothing new..." });
+    return res.status(200).json({ result: "Nothing new..." });
   }
 }
