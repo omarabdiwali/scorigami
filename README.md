@@ -10,15 +10,15 @@ Scorigami is a collection of web applications that track unique scores in variou
 
 The Scorigami project consists of multiple sub-projects, each tracking a different sport:
 
-* **NBA Scorigami**: Tracks unique NBA scores and tweets from [@ScorigamiNBA_](https://x.com/ScorigamiNBA_)
+* **NBA Scorigami**: Tracks unique NBA scores.
 	+ Visit the website at: https://scorigami-nba.vercel.app
 	+ [Source code](https://github.com/omarabdiwali/scorigami/tree/main/nba)
-	+ The application checks for new game scores every 2 minutes and tweets new scores from the [@ScorigamiNBA_](https://x.com/ScorigamiNBA_) Twitter account if a scorigami occurs.
+	+ The application checks for new game scores every 2 minutes using *AWS EventBridge and Lambda*.
 	+ Includes an interactive box score modal that displays detailed player statistics for each team when viewing game details.
-* **NFL Scorigami**: Tracks unique NFL scores and tweets from [@NFLScorigamiBot](https://x.com/NFLScorigamiBot)
+* **NFL Scorigami**: Tracks unique NFL scores.
 	+ Visit the website at: https://nfl-scorigami.vercel.app
 	+ [Source code](https://github.com/omarabdiwali/scorigami/tree/main/nfl)
-	+ The application checks for new game scores every minute on gamedays and tweets new scores from the [@NFLScorigamiBot](https://x.com/NFLScorigamiBot) Twitter account if a scorigami occurs.
+	+ The application checks for new game scores every minute on gamedays using *AWS EventBridge and Lambda*.
 	+ Includes an interactive box score modal that displays detailed player statistics and team performance metrics when viewing game details.
 
 ## Technical Details
@@ -28,7 +28,6 @@ All sub-projects are built using Next.js and use the following technologies:
 * **Frontend**: Next.js, React
 * **Backend**: Next.js API routes
 * **Database**: MongoDB (using Mongoose for ORM)
-* **Twitter API**: Twitter-api-v2 library for interacting with the Twitter API
 
 ## Features
 
@@ -79,10 +78,6 @@ To set up a sub-project, navigate to its directory and follow the setup instruct
 2. Move into the sub-project directory (e.g. `nba` or `nfl`)
 3. Install dependencies: `npm install`
 4. Create a `.env` file with the following environment variables:
-	* `API_KEY`: Twitter API key
-	* `API_KEY_SECRET`: Twitter API key secret
-	* `ACCESS_TOKEN`: Twitter access token
-	* `ACCESS_TOKEN_SECRET`: Twitter access token secret
 	* `MONGODB_URI`: MongoDB connection string
 5. Start the application: `npm run dev`
 
@@ -93,4 +88,3 @@ To use a sub-project, follow the usage instructions in its README:
 1. Open the application in a web browser: `http://localhost:3000`
 2. The application will display the latest scorigami data, including an interactive chart showcasing all unique scores and a live game center with current and upcoming games.
 3. Click on any game card to open the box score modal with detailed player statistics. Use the tabs to switch between teams.
-4. If a scorigami occurs, it will be tweeted from the respective Twitter account.
