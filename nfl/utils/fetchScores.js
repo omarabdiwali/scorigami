@@ -69,7 +69,7 @@ const constructTweet = async (data) => {
         exists.count += 1;
         exists.date = new Date(data.date);
         exists.versus = data.versus;
-        exists.save();
+        await exists.save();
     } else {
         const totalScores = await Scores.countDocuments({});
         scorigami = `🚨 SCORIGAMI! 🚨\n\nThat's Scorigami!! It's the ${totalScores}${ordinalEnding(totalScores)} unique final score in NFL History!`;
