@@ -1,3 +1,5 @@
+import Scorigami from "@/models/Scorigami";
+import dbConnect from "@/utils/dbConnect";
 import getScorigamiData from "@/utils/fetchScores";
 
 const checkNewGames = async () => {
@@ -8,26 +10,36 @@ const checkNewGames = async () => {
   }
 }
 
-// const tweetScores = async (tweets) => {
-//   let newTweets = 0;
-//   const twitterClient = new TwitterApi({
-//     appKey: process.env.API_KEY,
-//     appSecret: process.env.API_KEY_SECRET,
-//     accessToken: process.env.ACCESS_TOKEN,
-//     accessSecret: process.env.ACCESS_TOKEN_SECRET
-//   })
+const addToScorigami = async (items) => {
+  await dbConnect();
+  try {
+    const createdItems = await Scorigami.insertMany(items, { lean: true, ordered: false });
+    return {
+      status: 200,
+      message: `${createdItems.length}/${items.length} games added!`
+    };
+  } catch (error) {
+    console.error('Batch insertion failed:', error);
+    
+    if (error.writeErrors) {
+      let message = "";
+      for (const err of error.writeErrors) {
+        message += err.errmsg + '\n';
+      }
+      
+      const succeededCount = error.insertedDocs?.length || 0;
+      return {
+        status: 200,
+        message: `${succeededCount}/${items.length} games added.\nErrors:\n${message.trim()}`
+      };
+    }
 
-//   try {
-//     for (const tweet of tweets) {
-//       await twitterClient.v2.tweet(tweet);
-//       newTweets += 1;
-//     }
-//     return `${newTweets}/${tweets.length} new tweets posted!`
-//   } catch (e) {
-//     console.log(e);
-//     return `${newTweets}/${tweets.length} new tweets posted!`;
-//   }
-// }
+    return {
+      status: 200,
+      message: `Database connection error: ${error.message}`
+    }
+  }
+}
 
 export default async function handler(req, res) {
   const authHeader = req.headers.authorization;
@@ -41,7 +53,8 @@ export default async function handler(req, res) {
   }
   
   if (gamesInfo.data.length > 0) {
-    return res.status(200).json({ result: `Added ${gamesInfo.data.length} game(s) to the database!` })
+    const result = await addToScorigami(gamesInfo.data);
+    return res.status(result.status).json({ result: result.message })
   } else {
     return res.status(200).json({ result: "Nothing new..." });
   }

@@ -2,6 +2,7 @@ import Image from "next/image";
 import { Geist, Geist_Mono } from "next/font/google";
 import ScorigamiChart from "@/components/ScorigamiChart";
 import DisplayGames from "@/components/DisplayGames";
+import ScorigamiResults from "@/components/ScorigamiResults";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,6 +43,7 @@ export default function Home() {
       </div>
       
       <DisplayGames />
+      <ScorigamiResults />
       
       <div className={`pb-5`}>  
         <footer className="row-start-3 mt-10 flex flex-wrap items-center justify-center gap-4">
