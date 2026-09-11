@@ -110,10 +110,10 @@ const getScorigamiData = async () => {
                 
                 if (!item.homeTeam) {
                     item.homeTeam = getNestedProperty(team, ["team", "abbreviation"]);
-                    item.homeScore = getNestedProperty(team, ["score"]);
+                    item.homeScore = parseInt(getNestedProperty(team, ["score"]));
                 } else {
                     item.awayTeam = getNestedProperty(team, ["team", "abbreviation"]);
-                    item.awayScore = getNestedProperty(team, ["score"]);
+                    item.awayScore = parseInt(getNestedProperty(team, ["score"]));
                 }
 
                 if (getNestedProperty(team, ["winner"]) && gameData.winner == undefined) {

@@ -8,8 +8,8 @@ const ScorigamiSchema = new mongoose.Schema({
   date: Date,
   homeTeam: String,
   awayTeam: String,
-  homeScore: String,
-  awayScore: String,
+  homeScore: Number,
+  awayScore: Number,
   text: String
 });
 
