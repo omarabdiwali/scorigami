@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { ReloadIcon } from "@/utils/global";
+import { useState, useEffect, useRef } from "react";
 const LIMIT = 15;
 
 export default function ScorigamiResults() {
@@ -7,6 +8,7 @@ export default function ScorigamiResults() {
   const [visibleCount, setVisibleCount] = useState(LIMIT);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const resultsRef = useRef(null);
 
   const fetchScorigamiResults = (reset = false, useCursor = null) => {
     setLoading(true);
@@ -36,7 +38,6 @@ export default function ScorigamiResults() {
       });
   };
 
-  // Initial fetch
   useEffect(() => {
     fetchScorigamiResults(true);
   }, []);
@@ -48,12 +49,25 @@ export default function ScorigamiResults() {
     setVisibleCount(prev => prev + LIMIT);
   };
 
+  const handleReload = () => {
+    fetchScorigamiResults(true);
+    if (resultsRef.current) {
+      resultsRef.current.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+  }
+
   return (
-    <div className="mt-4 sm:mt-5 max-h-[60vh] p-3 max-w-5xl justify-self-center overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+    <div className="mt-4 mb-2 sm:mt-5 p-3 max-w-5xl justify-self-center">
       <div className="mx-auto px-2">
-        <h2 className="text-xl sm:text-2xl font-bold mb-8 text-gray-100 border-b border-gray-800 pb-4">
-          Recent Scorigami Results
-        </h2>
+        <div className="flex gap-3 text-xl sm:text-2xl font-bold mb-8 text-gray-100 border-b border-gray-800 pb-4">
+          <h2 className="flex-1">Recent Scorigami Results</h2>
+          <button title="Refresh" onClick={handleReload} disabled={loading} className="enabled:cursor-pointer text-white enabled:hover:text-gray-400 disabled:opacity-50">
+            <ReloadIcon />
+          </button>
+        </div>
         
         {loading && scorigamiResults.length === 0 ? (
           <div className="text-center py-12">
@@ -64,7 +78,7 @@ export default function ScorigamiResults() {
             No scorigami results available
           </div>
         ) : (
-          <>
+          <div ref={resultsRef} className="custom-scrollbar overflow-y-auto max-h-[60vh] px-2">
             <div className="flex flex-col bg-slate-800/50 rounded-xl shadow-sm border border-gray-700 overflow-hidden">
               {scorigamiResults.slice(0, visibleCount).map((result, index) => {
                 const isScorigami = result.text.includes('SCORIGAMI');
@@ -109,7 +123,7 @@ export default function ScorigamiResults() {
             </div>
             
             {hasMore && (
-              <div className="text-center mt-8 mb-4">
+              <div className="text-center mt-4">
                 <button
                   onClick={handleLoadMore}
                   disabled={loading}
@@ -131,11 +145,11 @@ export default function ScorigamiResults() {
             )}
             
             {!hasMore && (
-              <div className="text-center text-gray-500 text-xs mt-6 mb-4">
+              <div className="text-center text-gray-500 text-xs mt-4">
                 Showing all {scorigamiResults.length} results
               </div>
             )}
-          </>
+          </div>
         )}
       </div>
     </div>
