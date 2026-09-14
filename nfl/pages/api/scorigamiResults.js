@@ -14,10 +14,10 @@ export default async function handler(req, res) {
     }
 
     const items = await Scorigami.find(query).sort({ _id: -1 }).limit(limit + 1);
-    const hasNext = items.length > limit;
-    response.hasNext = hasNext;
+    const hasMore = items.length > limit;
+    response.hasMore = hasMore;
     
-    if (hasNext) {
+    if (hasMore) {
         items.pop();
         response.results = items;
         response.cursor = items.at(-1)?._id;

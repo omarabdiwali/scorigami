@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
+const LIMIT = 15;
 
 export default function ScorigamiResults() {
   const [scorigamiResults, setScorigamiResults] = useState([]);
   const [cursor, setCursor] = useState(null);
-  const [hasNext, setHasNext] = useState(false);
-  const [visibleCount, setVisibleCount] = useState(15);
+  const [visibleCount, setVisibleCount] = useState(LIMIT);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
 
@@ -21,15 +21,12 @@ export default function ScorigamiResults() {
       .then(data => {
         if (reset) {
           setScorigamiResults(data.results || []);
-          setCursor(data.cursor);
-          setHasNext(data.hasNext);
         } else {
           setScorigamiResults(prev => [...prev, ...(data.results || [])]);
-          setCursor(data.cursor);
-          setHasNext(data.hasNext);
         }
-        
-        setHasMore(data.hasNext);
+
+        setCursor(data.cursor);
+        setHasMore(data.hasMore);
       })
       .catch(error => {
         console.error('Error fetching scorigami results:', error);
@@ -45,16 +42,11 @@ export default function ScorigamiResults() {
   }, []);
 
   const handleLoadMore = () => {
-    if (cursor && hasNext) {
+    if (cursor && hasMore) {
       fetchScorigamiResults(false, cursor);
     }
-    setVisibleCount(prev => prev + 10);
+    setVisibleCount(prev => prev + LIMIT);
   };
-
-  useEffect(() => {
-    setVisibleCount(10);
-    setHasMore(hasNext);
-  }, [hasNext]);
 
   return (
     <div className="mt-4 sm:mt-5 max-h-[60vh] p-3 max-w-5xl justify-self-center overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
@@ -138,7 +130,7 @@ export default function ScorigamiResults() {
               </div>
             )}
             
-            {!hasMore && scorigamiResults.length > 10 && (
+            {!hasMore && (
               <div className="text-center text-gray-500 text-xs mt-6 mb-4">
                 Showing all {scorigamiResults.length} results
               </div>
