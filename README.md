@@ -41,11 +41,14 @@ The NFL application includes a live game center that displays:
 * Final results with winning teams highlighted
 * Team logos, names, and current records
 * Game status indicators, showing which team has possession
+* Recent Scorigami results, with cursor-based pagination
 * **Interactive Box Score Modal**: Click on any game card to view detailed game information including:
   * Informative player statistics, broken down into their own sub-categories (passing, rushing, receiving, etc.)
   * Responsive design that works on mobile and desktop
   * Tabbed interface to switch between teams
   * Automatic info updates when viewing live games
+
+![Scorigami Results](https://i.imgur.com/WijVfDh.png)
 
 ### NBA Features
 
