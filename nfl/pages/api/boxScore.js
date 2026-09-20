@@ -6,8 +6,8 @@ export default async function handler(req, res) {
         return;
     }
     
-    const { gameId, status, teamOrder } = JSON.parse(req.body);
-    if (status == "pre") {
+    const { gameId, status, date, teamOrder } = JSON.parse(req.body);
+    if (status == "pre" && Date.now() < new Date(date).getTime()) {
         return res.status(200).json({ result: {} });
     }
 

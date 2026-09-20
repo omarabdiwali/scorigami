@@ -105,7 +105,7 @@ function BoxScoreModal({ game, onClose }) {
       try {
         const resp = await fetch("/api/boxScore", { 
           method: "POST", 
-          body: JSON.stringify({ gameId: game.id, status, teamOrder: [team1.name, team2.name] }) 
+          body: JSON.stringify({ gameId: game.id, date, status, teamOrder: [team1.name, team2.name] }) 
         });
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
         const data = await resp.json();
