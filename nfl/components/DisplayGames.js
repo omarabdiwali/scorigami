@@ -75,16 +75,16 @@ function BoxScoreModal({ game, onClose }) {
     const debouncedCheckHeight = (skipTimeout=false) => {
       if (skipTimeout) {
         const height = window.innerHeight;
-        setIsSmallHeight(height < 500);
-        setShowLinescore(height > 680);
+        setIsSmallHeight(height < 550);
+        setShowLinescore(height > 750);
         return;
       }
 
       clearTimeout(timeoutId);
       timeoutId = setTimeout(() => {
         const height = window.innerHeight;
-        setIsSmallHeight(height < 500);
-        setShowLinescore(height > 680);
+        setIsSmallHeight(height < 550);
+        setShowLinescore(height > 750);
       }, 150)
     };
     
@@ -177,8 +177,8 @@ function BoxScoreModal({ game, onClose }) {
       <div 
         className="relative bg-gray-900 border border-white/10 rounded-2xl shadow-2xl w-full max-w-4xl flex flex-col overflow-hidden"
         style={{ 
-          height: isSmallHeight ? '95vh' : '85vh',
-          maxHeight: isSmallHeight ? '95vh' : '90vh'
+          height: isSmallHeight ? '90vh' : '85vh',
+          maxHeight: isSmallHeight ? '90vh' : '85vh'
         }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -192,11 +192,6 @@ function BoxScoreModal({ game, onClose }) {
         </button>
 
         <div className={`${isSmallHeight ? 'p-2' : 'p-4 sm:p-6'} border-b border-white/10 flex-shrink-0`}>
-          {game.gameDetail && (
-              <div className="text-sm font-medium text-gray-300 text-center mb-4 py-1 px-2">
-                {game.gameDetail}
-              </div>
-          )}
           {showLinescore && (
             <div className="text-center">
               {!isUpcoming && <div className="sm:text-sm text-xs">{clock}</div>}
@@ -239,7 +234,7 @@ function BoxScoreModal({ game, onClose }) {
           
           {/* Desktop layout */}
           <div className="hidden sm:flex justify-between items-center">
-            <div className="flex flex-col items-center flex-1">
+            <div className="relative flex flex-col items-center flex-1">
               <img src={team1.logo || '/default.png'} alt={team1.name} className={`object-contain mb-2 ${isSmallHeight ? 'w-12 h-12' : 'w-16 h-16'}`} />
               <span className={`text-white font-medium ${isSmallHeight ? 'text-xs' : 'text-sm'}`}>{team1.name}</span>
               <span className="text-white opacity-40 text-xs">{team1.series ? team1.series : team1.record}</span>
@@ -254,12 +249,12 @@ function BoxScoreModal({ game, onClose }) {
                   <img 
                     src={"/football.png"} 
                     alt={"Poss."} 
-                    className="w-10 h-10" 
+                    className="absolute bottom-[-26%] w-10 h-10" 
                   />
                 )}
             </div>
             <div className="text-gray-400 font-bold text-xl mx-4">VS</div>
-            <div className="flex flex-col items-center flex-1">
+            <div className="relative flex flex-col items-center flex-1">
               <img src={team2.logo || '/default.png'} alt={team2.name} className={`object-contain mb-2 ${isSmallHeight ? 'w-12 h-12' : 'w-16 h-16'}`} />
               <span className={`text-white font-medium ${isSmallHeight ? 'text-xs' : 'text-sm'}`}>{team2.name}</span>
               <span className="text-white opacity-40 text-xs">{team2.series ? team2.series : team2.record}</span>
@@ -274,7 +269,7 @@ function BoxScoreModal({ game, onClose }) {
                   <img 
                     src={"/football.png"} 
                     alt={"Poss."} 
-                    className="w-10 h-10" 
+                    className="absolute bottom-[-26%] w-10 h-10" 
                   />
                 )}
             </div>

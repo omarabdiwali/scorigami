@@ -18,7 +18,7 @@ export default function Home() {
   return (
     <div className={`${geistSans.className} ${geistMono.className}`}>
       <div
-        className={`font-sans items-center justify-items-center min-h-screen p-8 gap-16`}
+        className={`font-sans items-center justify-items-center p-8 gap-16`}
       >
         <main className="flex gap-[32px] items-center sm:items-start">
           <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
