@@ -1,4 +1,4 @@
-import Scorigami from "@/models/Scorigami";
+import NBAScorigami from "@/models/NBAScorigami";
 import dbConnect from "@/utils/dbConnect";
 import { LIMIT } from "@/utils/global";
 
@@ -13,7 +13,7 @@ export default async function handler(req, res) {
         query._id = { $lt: cursor };
     }
 
-    const items = await Scorigami.find(query).sort({ _id: -1 }).limit(LIMIT + 1);
+    const items = await NBAScorigami.find(query).sort({ _id: -1 }).limit(LIMIT + 1);
     const hasMore = items.length > LIMIT;
     response.hasMore = hasMore;
     

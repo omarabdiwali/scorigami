@@ -2,6 +2,7 @@ import Image from "next/image";
 import { Geist, Geist_Mono } from "next/font/google";
 import ScorigamiChart from "@/components/ScorigamiChart";
 import DisplayGames from "@/components/DisplayGames";
+import ScorigamiResults from "@/components/ScorigamiResults";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,7 +18,7 @@ export default function Home() {
   return (
     <div className={`${geistSans.className} ${geistMono.className}`}>
       <div
-        className={`font-sans items-center justify-items-center min-h-screen p-8 gap-16`}
+        className={`font-sans items-center justify-items-center p-8 gap-16`}
       >
         <main className="flex gap-[32px] items-center sm:items-start">
           <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
@@ -25,10 +26,10 @@ export default function Home() {
               Welcome to NBA Scorigami, a web application that tracks unique NBA scores. 
               Scorigami is a concept thought up by Jon Bois, referring to a score that has never been seen before in a sport&apos;s history.
             </li>
-            {/* <li className="mb-2 tracking-[-.01em]">
+            <li className="mb-2 tracking-[-.01em]">
               The latest game scores are automatically checked every 2 minutes. If a scorigami occurs, 
-              it will be tweeted from <a target="_blank" rel="noopener noreferrer" className="text-blue-200 hover:text-blue-400 hover:underline" href="https://x.com/ScorigamiNBA_">@ScorigamiNBA_</a>
-            </li> */}
+              it will be shown in the <a className="text-blue-200 hover:text-blue-400 hover:underline" href="#table">Scorigami Table</a>.
+            </li>
             <li className="tracking-[-.01em]">
               The data collected starts from the 1946 NBA season, and includes the ABA seasons (1967-76).
               The chart below, showcasing all unique scores throughout NBA&apos;s history, is updated daily. 
@@ -41,6 +42,7 @@ export default function Home() {
       </div>
       
       <DisplayGames />
+      <ScorigamiResults />
 
       <div className={`pb-5`}>
         <footer className="row-start-3 mt-10 flex flex-wrap items-center justify-center gap-4">

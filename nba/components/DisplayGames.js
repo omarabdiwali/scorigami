@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import DisplayBoxScore from "./DisplayBoxScore";
 
 function LineScoreTable({ className, data }) {
-  const headClass = "border-b dark:border-slate-600 p-2 pt-0 pb-2 text-slate-400 dark:text-slate-200";
-  const dataClass = "border-b border-slate-300 dark:border-slate-700 p-2 text-slate-500 dark:text-slate-400";
+  const headClass = "border-b border-slate-600 p-2 pt-0 pb-2 text-slate-200";
+  const dataClass = "border-b border-slate-700 p-2 text-slate-400";
 
   if (!data) return;
   const team1 = data.at(0);
@@ -74,16 +74,16 @@ function BoxScoreModal({ game, onClose }) {
     const debouncedCheckHeight = (skipTimeout=false) => {
       if (skipTimeout) {
         const height = window.innerHeight;
-        setIsSmallHeight(height < 500);
-        setShowLinescore(height > 650);
+        setIsSmallHeight(height < 550);
+        setShowLinescore(height > 750);
         return;
       }
 
       clearTimeout(timeoutId);
       timeoutId = setTimeout(() => {
         const height = window.innerHeight;
-        setIsSmallHeight(height < 500);
-        setShowLinescore(height > 650);
+        setIsSmallHeight(height < 550);
+        setShowLinescore(height > 750);
       }, 150)
     };
     
@@ -173,8 +173,8 @@ function BoxScoreModal({ game, onClose }) {
       <div 
         className="relative bg-gray-900 border border-white/10 rounded-2xl shadow-2xl w-full max-w-4xl flex flex-col overflow-hidden"
         style={{ 
-          height: isSmallHeight ? '95vh' : '85vh',
-          maxHeight: isSmallHeight ? '95vh' : '90vh'
+          height: isSmallHeight ? '90vh' : '85vh',
+          maxHeight: isSmallHeight ? '90vh' : '85vh'
         }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -189,7 +189,7 @@ function BoxScoreModal({ game, onClose }) {
 
         <div className={`${isSmallHeight ? 'p-2' : 'p-4 sm:p-6'} border-b border-white/10 flex-shrink-0`}>
           {game.gameDetail && (
-            <div className="text-sm font-medium text-gray-300 text-center mb-4 py-1 px-2">
+            <div className="text-xs font-medium text-gray-300 text-center mb-2 py-1 px-2">
               {game.gameDetail}
             </div>
           )}

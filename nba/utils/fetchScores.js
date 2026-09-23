@@ -50,7 +50,6 @@ const orderValues = (data, winnerFirst, prevScore=true) => {
 
 const constructTweet = async (data) => {
     await dbConnect();
-    const gameScore = `${orderValues(data, data.winnerFirst, false)}\n\n`;
     const exists = await NBAScores.findOne({ score: data.score });
     let scorigami = "";
     
@@ -64,25 +63,29 @@ const constructTweet = async (data) => {
         await exists.save();
     } else {
         const totalScores = await NBAScores.countDocuments({});
-        scorigami = `🔔 SCORIGAMI! 🔔\n\nThat's Scorigami!! It's the ${totalScores}${ordinalEnding(totalScores)} unique final score in NBA History!`;
+        scorigami = `🚨 SCORIGAMI! 🚨 It's the ${totalScores}${ordinalEnding(totalScores)} unique final score in NBA History!`;
         const modelData = { score: data.score, versus: data.versus, date: new Date(data.date), count: 1 };
         await NBAScores.create(modelData).catch(err => console.log(err));
     }
 
     await addProcessedGame(data.id);
-    return gameScore + scorigami;
+    return scorigami;
 }
 
 const getScorigamiData = async () => {
     try {
         const keys = ["id", "date", "winner", "winnerScore", "loser", "loserScore"];
-        const tweetsToPost = [];
+        const retKeys = ["id", "homeTeam", "homeScore", "awayScore", "awayTeam", "date", "text"];
+
+        const result = [];
         const url = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard";
         const data = await getRequest(url);
         
         for (const event of data.events) {
             let winnerFirst = true;
             const gameData = {};
+            const item = {};
+
             const id = getNestedProperty(event, ["id"]);
             const completed = getNestedProperty(event, ["status", "type", "completed"]);
             const date = getNestedProperty(event, ["date"]);
@@ -91,9 +94,19 @@ const getScorigamiData = async () => {
 
             gameData.id = id;
             gameData.date = normalizeDate(date);
+            item.id = id;
+            item.date = new Date(date);
 
             if (!completed || isAllStar || await hasBeenProcessed(id)) continue;
             for (const team of getNestedProperty(event, ["competitions", 0, "competitors"])) {
+                if (!item.homeTeam) {
+                    item.homeTeam = getNestedProperty(team, ["team", "abbreviation"]);
+                    item.homeScore = parseInt(getNestedProperty(team, ["score"]));
+                } else {
+                    item.awayTeam = getNestedProperty(team, ["team", "abbreviation"]);
+                    item.awayScore = parseInt(getNestedProperty(team, ["score"]));
+                }
+
                 if (getNestedProperty(team, ["winner"]) && gameData.winner == undefined) {
                     gameData.winner = getNestedProperty(team, ["team", "displayName"]);
                     gameData.winnerScore = getNestedProperty(team, ["score"]);
@@ -111,11 +124,14 @@ const getScorigamiData = async () => {
             gameData.versus = `${gameData.winner} vs ${gameData.loser}`;
             gameData.score = `${gameData.winnerScore}-${gameData.loserScore}`;
             gameData.winnerFirst = winnerFirst;
+
             const tweet = await constructTweet(gameData);
-            tweetsToPost.push(tweet);
+            item.text = tweet;
+            validateData(item, retKeys);
+            result.push(item);
         }
 
-        return { success: true, data: tweetsToPost };
+        return { success: true, data: result };
     } catch (error) {
         return { success: false, data: error.message };
     }

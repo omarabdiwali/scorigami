@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import DisplayBoxScore from "./DisplayBoxScore";
 
 function LineScoreTable({ className, data }) {
-  const headClass = "border-b dark:border-slate-600 p-2 pt-0 pb-2 text-slate-400 dark:text-slate-200";
-  const dataClass = "border-b border-slate-300 dark:border-slate-700 p-2 text-slate-500 dark:text-slate-400";
+  const headClass = "border-b border-slate-600 p-2 pt-0 pb-2 text-slate-200";
+  const dataClass = "border-b border-slate-700 p-2 text-slate-400";
 
   if (!data) return;
   const team1 = data.at(0);
@@ -192,6 +192,11 @@ function BoxScoreModal({ game, onClose }) {
         </button>
 
         <div className={`${isSmallHeight ? 'p-2' : 'p-4 sm:p-6'} border-b border-white/10 flex-shrink-0`}>
+          {game.gameDetail && (
+              <div className="text-xs font-medium text-gray-300 text-center mb-2 py-1 px-2">
+                {game.gameDetail}
+              </div>
+          )}
           {showLinescore && (
             <div className="text-center">
               {!isUpcoming && <div className="sm:text-sm text-xs">{clock}</div>}

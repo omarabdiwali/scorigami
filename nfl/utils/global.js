@@ -1,3 +1,4 @@
+export const LIMIT = 16;
 export const getRequest = async (url) => {
     return await fetch(url).then(res => res.json()).then(data => { return data; });
 }

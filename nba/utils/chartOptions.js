@@ -18,7 +18,7 @@ export const gradientColors = [
   '#ffed00',
   '#ffd700',
   '#ffbf00',
-  '#FFA500',
+  '#ffa500',
   '#ff9900',
   '#ff8c00',
   '#ff6600',
@@ -137,7 +137,8 @@ export function CustomTooltip() {
         border: '1px solid rgba(255, 255, 255, 0.2)',
         boxShadow: '0 4px 20px rgba(0, 0, 0, 0.25)',
         backdropFilter: 'blur(4px)',
-        minWidth: '200px'
+        minWidth: '200px',
+        maxWidth: '90vw'
       }}>
         <Typography variant="body2" sx={{ fontWeight: 700, mb: 1, color: '#00fffa' }}>
           {item.value.id} Final Score

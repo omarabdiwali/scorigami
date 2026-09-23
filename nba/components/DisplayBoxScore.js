@@ -1,8 +1,8 @@
 import DisplayPlayByPlay from "./DisplayPlayByPlay";
 
 function TeamTable({ team, labels, descriptions }) {
-    const headClass = "border-b dark:border-slate-600 p-2 pt-0 pb-3 text-slate-400 dark:text-slate-200";
-    const dataClass = "border-b border-slate-300 dark:border-slate-700 p-2 text-slate-500 dark:text-slate-400";
+    const headClass = "border-b border-slate-600 p-2 pt-0 pb-3 text-slate-200";
+    const dataClass = "border-b border-slate-700 p-2 text-slate-400";
 
     return (
         <>
