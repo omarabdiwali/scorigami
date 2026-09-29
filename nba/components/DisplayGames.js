@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import DisplayBoxScore from "./DisplayBoxScore";
 
 function LineScoreTable({ className, data }) {
@@ -68,6 +68,7 @@ function BoxScoreModal({ game, onClose }) {
   const [showLinescore, setShowLinescore] = useState(false);
   const [linescoreData, setLineScoreData] = useState(null);
   const [playsData, setPlaysData] = useState(null);
+  const scrollRef = useRef(null);
 
   useEffect(() => {
     let timeoutId = null;
@@ -104,7 +105,7 @@ function BoxScoreModal({ game, onClose }) {
       try {
         const resp = await fetch("/api/boxScore", { 
           method: "POST", 
-          body: JSON.stringify({ gameId: game.id, status, teamOrder: [team1.name, team2.name] }) 
+          body: JSON.stringify({ gameId: game.id, status, date, teamOrder: [team1.name, team2.name] }) 
         });
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
         const data = await resp.json();
@@ -301,7 +302,7 @@ function BoxScoreModal({ game, onClose }) {
           </button>
         </div>
 
-        <div className={`flex-1 no-scrollbar ${activeSection === 'plays' ? 'overflow-hidden' : 'overflow-auto p-3 sm:p-6'}`}>
+        <div ref={scrollRef} className={`relative flex-1 no-scrollbar overflow-y-auto ${activeSection === 'plays' ? '' : 'p-3 sm:p-6'}`}>
           {loading ? (
             <div className="flex justify-center items-center h-full">
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
@@ -309,9 +310,7 @@ function BoxScoreModal({ game, onClose }) {
           ) : error ? (
             <div className="text-center py-12 text-red-400">{error}</div>
           ) : (
-            <div className={`relative overflow-x-auto`}>
-              <DisplayBoxScore data={gameData} plays={playsData} loading={false} activeSection={activeSection} />
-            </div>
+            <DisplayBoxScore data={gameData} plays={playsData} loading={false} activeSection={activeSection} scrollRef={scrollRef} hideQtrs={isSmallHeight} />
           )}
         </div>
       </div>

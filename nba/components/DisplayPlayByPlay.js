@@ -40,29 +40,23 @@ function QuarterPlays({ plays, curQuarter, prevQuarter, homeTeam, awayTeam, bgCo
     )
 }
 
-export default function DisplayPlayByPlay({ data }) {
+export default function DisplayPlayByPlay({ data, scrollRef, quarterRefs, setCurButton }) {
     if (!data || Object.keys(data) == 0 || !data.plays || Object.keys(data.plays) == 0) {
         return <div className="text-center py-8 text-gray-400">No play-by-play data available</div>;
     }
 
-    const scrollRef = useRef(null);
-    const stickyRef = useRef(null);
-    const quarterRefs = useRef({});
     const quarters = ['1st', '2nd', '3rd', '4th', 'OT'];
     let initialColor = '';
     const quarterKeys = data && data.plays ? Object.keys(data.plays) : [];
-    const lastKey = quarterKeys.at(-1);
-    const intKey = lastKey ? parseInt(lastKey) - 1 : 0;
-    const [curButton, setCurButton] = useState(intKey < 5 ? quarters.at(intKey) : `${intKey-3}OT`);
-
-    const scrollToQuarter = (qtr) => {
-        quarterRefs.current[qtr]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        setCurButton(qtr);
-    };
-
+    
     useEffect(() => {
-        if (!stickyRef.current) return;
-        stickyRef.current.scrollIntoView({ behavior: 'instant', block: 'start' });
+        const key = quarterKeys.at(-1) ? quarterKeys.at(-1) : 0;
+        const intKey = parseInt(key) - 1;
+        const qtr = intKey < 5 ? quarters.at(intKey) : `${intKey-3}OT`;
+        setCurButton(qtr);
+        if (quarterRefs.current[qtr]) {
+            quarterRefs.current[qtr]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
     }, [])
 
     useEffect(() => {
@@ -104,24 +98,7 @@ export default function DisplayPlayByPlay({ data }) {
     }, []);
 
     return (
-        <div ref={scrollRef} className="flex flex-col min-h-[30vh] max-h-[40vh] overflow-auto no-scrollbar">
-            {/* Sticky Quarter Navigation */}
-            <div ref={stickyRef} className="sticky top-0 z-30 bg-gray-900 space-x-2 flex flex-row max-w-full pb-2 pt-2 px-2">
-                {quarterKeys.map((key) => {
-                    const intKey = parseInt(key) - 1;
-                    const qtr = intKey < 5 ? quarters.at(intKey) : `${intKey-3}OT`;
-                    return (
-                        <button 
-                            onClick={() => scrollToQuarter(qtr)} 
-                            className={`flex-1 p-2 text-xs sm:text-sm ${curButton == qtr ? `cursor-auto text-blue-400` : 'cursor-pointer rounded hover:bg-gray-800 hover:text-slate-400'}`}
-                            key={`Button-${qtr}`}
-                        >
-                            {qtr}
-                        </button>
-                    )
-                })}
-            </div>
-            
+        <div className="flex flex-col flex-1">
             {/* Scrollable Content */}
             <div className="flex-1">
                 {[...quarterKeys].reverse().map((key) => {

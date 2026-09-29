@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import DisplayPlayByPlay from "./DisplayPlayByPlay";
 
 function TeamTable({ team, labels, descriptions }) {
@@ -40,7 +41,7 @@ function TeamTable({ team, labels, descriptions }) {
     )
 }
 
-export default function DisplayBoxScore({ data, plays, loading, activeSection }) {
+export default function DisplayBoxScore({ data, plays, loading, activeSection, scrollRef, hideQtrs }) {
     if (loading) {
         return <div>Loading...</div>;
     }
@@ -50,12 +51,39 @@ export default function DisplayBoxScore({ data, plays, loading, activeSection })
         return <div className={`text-center ${activeSection == 'plays' ? 'sm:py-14 py-11' : 'py-8'} text-gray-400`}>{info}</div>;
     }
 
+    const quarters = ['1st', '2nd', '3rd', '4th', 'OT'];
+    const [curButton, setCurButton] = useState(null);
+
+    const quarterRefs = useRef({});
+    const scrollToQuarter = (qtr) => {
+        if (quarterRefs.current[qtr]) {
+            quarterRefs.current[qtr]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            setCurButton(qtr);
+        }
+    };
+    const quarterKeys = plays && plays.plays ? Object.keys(plays.plays) : [];
+
     const showPlayByPlay = activeSection == 'plays';
     if (showPlayByPlay) {
         return (
             <>
+                <div className={`${hideQtrs ? '' : 'sticky top-0 z-30'} bg-gray-900 space-x-2 flex flex-row max-w-full`}>
+                    {quarterKeys.map((key) => {
+                        const intKey = parseInt(key) - 1;
+                        const qtr = intKey < 5 ? quarters.at(intKey) : `${intKey-3}OT`;
+                        return (
+                            <button 
+                                onClick={() => scrollToQuarter(qtr)} 
+                                className={`flex-1 py-2 text-xs ${curButton == qtr ? `cursor-auto text-blue-400` : 'cursor-pointer rounded hover:bg-gray-800 hover:text-slate-400'}`}
+                                key={`Button-${qtr}`}
+                            >
+                                {qtr}
+                            </button>
+                        )
+                    })}
+                </div>
                 <div className="w-full">
-                    <DisplayPlayByPlay data={plays} />
+                    <DisplayPlayByPlay data={plays} scrollRef={scrollRef} quarterRefs={quarterRefs} setCurButton={setCurButton} />
                 </div>
             </>
         )
