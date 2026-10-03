@@ -1,15 +1,62 @@
 import { LIMIT, ReloadIcon } from "@/utils/global";
 import { useState, useEffect, useRef } from "react";
 
+const Result = ({ result, isLast, isNew=true }) => {
+  const [newClass, setNewClass] = useState("bg-green-800 transition-colors duration-1000 ease-in-out");
+  const isScorigami = result.text.includes('SCORIGAMI');
+  const whoWon = result.homeScore > result.awayScore ? 1 : result.awayScore > result.homeScore ? 2 : 0;
+
+  useEffect(() => {
+    if (!isNew) return;
+    setNewClass("bg-slate-800/50 transition-colors duration-1000 ease-in-out");
+  }, [isNew])
+  
+  return (
+    <div 
+      key={result.id}
+      className={`flex flex-col p-4 ${isNew ? newClass : 'bg-slate-800/50'} sm:p-5 border-b border-gray-700/50 hover:bg-slate-900/50 transition-colors ${
+        isLast ? 'border-b-0' : ''
+      }`}
+    >
+      <div className="flex justify-between items-start mb-2">
+        <div className="flex flex-col">
+          <span className="text-sm font-semibold text-gray-200 tracking-tight">
+            {result.homeTeam} <span className={whoWon == 1 ? "text-green-400" : ""}>{result.homeScore}</span> - <span className={whoWon == 2 ? "text-green-400" : ""}>{result.awayScore}</span> {result.awayTeam}
+          </span>
+          <span className="text-xs text-gray-400 mt-0.5">
+            {new Date(result.date).toLocaleDateString([], { year: 'numeric', month: 'short', day: 'numeric' })}
+          </span>
+        </div>
+        
+        <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+          isScorigami 
+            ? 'bg-green-900/40 text-green-400'
+            : 'bg-red-900/40 text-red-300'
+        }`}>
+          {isScorigami ? 'NEW' : 'REPEAT'}
+        </span>
+      </div>
+
+      <div className={`text-xs sm:text-sm leading-snug w-full mt-1 ${
+        isScorigami 
+          ? 'text-green-400 font-medium'
+          : 'text-gray-400'
+      }`}>
+        {result.text}
+      </div>
+    </div>
+  );
+}
+
 export default function ScorigamiResults() {
   const [scorigamiResults, setScorigamiResults] = useState([]);
+  const [newResults, setNewResults] = useState([]);
   const [cursor, setCursor] = useState(null);
-  const [visibleCount, setVisibleCount] = useState(LIMIT);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const resultsRef = useRef(null);
 
-  const fetchScorigamiResults = (reset = false, useCursor = null) => {
+  const fetchScorigamiResults = (fetchNew = false, useCursor = null) => {
     setLoading(true);
     
     let url = '/api/scorigamiResults';
@@ -20,9 +67,17 @@ export default function ScorigamiResults() {
     fetch(url)
       .then(response => response.json())
       .then(data => {
-        if (reset) {
+        if (fetchNew) {
+          const isNew = [];
+          for (const res of data.results) {
+            if (res.id == scorigamiResults.at(0)?.id) break;
+            isNew.push(res.id);
+          }
+          
           setScorigamiResults(data.results || []);
+          setNewResults(isNew);
         } else {
+          setNewResults([]);
           setScorigamiResults(prev => [...prev, ...(data.results || [])]);
         }
 
@@ -38,14 +93,13 @@ export default function ScorigamiResults() {
   };
 
   useEffect(() => {
-    fetchScorigamiResults(true);
+    fetchScorigamiResults(false);
   }, []);
 
   const handleLoadMore = () => {
     if (cursor && hasMore) {
       fetchScorigamiResults(false, cursor);
     }
-    setVisibleCount(prev => prev + LIMIT);
   };
 
   const handleReload = () => {
@@ -53,7 +107,7 @@ export default function ScorigamiResults() {
     if (resultsRef.current) {
       resultsRef.current.scrollTo({
         top: 0,
-        behavior: 'smooth'
+        behavior: 'instant'
       });
     }
   }
@@ -78,46 +132,11 @@ export default function ScorigamiResults() {
           </div>
         ) : (
           <div ref={resultsRef} className="custom-scrollbar overflow-y-auto max-h-[60vh] px-2">
-            <div className="flex flex-col bg-slate-800/50 rounded-xl shadow-sm border border-gray-700 overflow-hidden">
-              {scorigamiResults.slice(0, visibleCount).map((result, index) => {
-                const isScorigami = result.text.includes('SCORIGAMI');
-                const whoWon = result.homeScore > result.awayScore ? 1 : result.awayScore > result.homeScore ? 2 : 0;
-                
-                return (
-                  <div 
-                    key={result.id}
-                    className={`flex flex-col p-4 sm:p-5 border-b border-gray-700/50 hover:bg-slate-900/50 transition-colors ${
-                      index === visibleCount - 1 || index === scorigamiResults.length - 1 ? 'border-b-0' : ''
-                    }`}
-                  >
-                    <div className="flex justify-between items-start mb-2">
-                      <div className="flex flex-col">
-                        <span className="text-sm font-semibold text-gray-200 tracking-tight">
-                          {result.homeTeam} <span className={whoWon == 1 ? "text-green-400" : ""}>{result.homeScore}</span> - <span className={whoWon == 2 ? "text-green-400" : ""}>{result.awayScore}</span> {result.awayTeam}
-                        </span>
-                        <span className="text-xs text-gray-400 mt-0.5">
-                          {new Date(result.date).toLocaleDateString([], { year: 'numeric', month: 'short', day: 'numeric' })}
-                        </span>
-                      </div>
-                      
-                      <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
-                        isScorigami 
-                          ? 'bg-green-900/40 text-green-400'
-                          : 'bg-red-900/40 text-red-300'
-                      }`}>
-                        {isScorigami ? 'NEW' : 'REPEAT'}
-                      </span>
-                    </div>
-
-                    <div className={`text-xs sm:text-sm leading-snug w-full mt-1 ${
-                      isScorigami 
-                        ? 'text-green-400 font-medium'
-                        : 'text-gray-400'
-                    }`}>
-                      {result.text}
-                    </div>
-                  </div>
-                );
+            <div className="flex flex-col rounded-xl shadow-sm border border-gray-700 overflow-hidden">
+              {scorigamiResults.map((result, index) => {
+                const isLast = index === scorigamiResults.length - 1;
+                const isNew = newResults.find((id) => result.id == id) != undefined;
+                return <Result key={result.id} result={result} isLast={isLast} isNew={isNew} />
               })}
             </div>
             
