@@ -1,20 +1,22 @@
-import { LIMIT, ReloadIcon } from "@/utils/global";
+import { ReloadIcon } from "@/utils/global";
 import { useState, useEffect, useRef } from "react";
 
 const Result = ({ result, isLast, isNew=true }) => {
-  const [newClass, setNewClass] = useState("bg-green-800 transition-colors duration-1000 ease-in-out");
+  const [isLoaded, setIsLoaded] = useState(false);
   const isScorigami = result.text.includes('SCORIGAMI');
   const whoWon = result.homeScore > result.awayScore ? 1 : result.awayScore > result.homeScore ? 2 : 0;
 
   useEffect(() => {
     if (!isNew) return;
-    setNewClass("bg-slate-800/50 transition-colors duration-1000 ease-in-out");
+    setTimeout(() => {
+      setIsLoaded(true);
+    }, 20)
   }, [isNew])
   
   return (
     <div 
       key={result.id}
-      className={`flex flex-col p-4 ${isNew ? newClass : 'bg-slate-800/50'} sm:p-5 border-b border-gray-700/50 hover:bg-slate-900/50 transition-colors ${
+      className={`flex flex-col p-4 ${isNew && !isLoaded ? 'bg-green-800' : 'bg-slate-800/50'} sm:p-5 border-b border-gray-700/50 hover:bg-slate-900/50 duration-[1500ms] ease-in-out transition-colors ${
         isLast ? 'border-b-0' : ''
       }`}
     >
