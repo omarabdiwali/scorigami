@@ -4,7 +4,7 @@ const getGameData = async () => {
     try {
         const keys = ["id", "date", "teams", "status", "detail"];
         const games = [];
-        const url = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard";
+        const url = "https://site.web.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard";
         const data = await getRequest(url);
 
         for (const event of data.events) {

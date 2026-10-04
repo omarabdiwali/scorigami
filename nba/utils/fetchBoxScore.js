@@ -3,7 +3,7 @@ import { getRequest, getNestedProperty, validateData } from './global.js';
 const getBoxScoreData = async (gameId, teamOrder) => {
     try {
         const boxScore = { 'teams': [] };
-        const url = `https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event=${gameId}`;
+        const url = `https://site.web.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event=${gameId}`;
         const data = await getRequest(url);
         
         const teamsInfo = getNestedProperty(data, ['header', 'competitions', 0, 'competitors']);

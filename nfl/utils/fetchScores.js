@@ -1,7 +1,8 @@
 import dbConnect from './dbConnect';
 import Scores from '@/models/Scores';
 import ProcessedGames from '@/models/ProcessedGames';
-import { getRequest, getNestedProperty, validateData } from './global';
+import { getNestedProperty, validateData, getRequest } from './global';
+import CachedEvents from '@/models/CachedEvents';
 
 const normalizeDate = (stringDate) => {
     const date = new Date(stringDate);
@@ -80,16 +81,23 @@ const constructTweet = async (data) => {
     return scorigami;
 }
 
+const updateCachedData = async () => {
+    await dbConnect();
+    const url = "https://site.web.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard";
+    const data = await getRequest(url);
+    await CachedEvents.updateOne({ key: "nflGames" }, { $set: { events: data.events } }, { upsert: true });
+    return data.events;
+}
+
 const getScorigamiData = async () => {
     try {
         const keys = ["id", "date", "winner", "winnerScore", "loser", "loserScore"];
         const retKeys = ["id", "homeTeam", "homeScore", "awayScore", "awayTeam", "date", "text"];
 
         const result = [];
-        const url = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard";
-        const data = await getRequest(url);
+        const events = await updateCachedData();
         
-        for (const event of data.events) {
+        for (const event of events) {
             let winnerFirst = true;
             const gameData = {};
             const item = {};
