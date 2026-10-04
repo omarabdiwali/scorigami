@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 
 const Result = ({ result, isLast, isNew=true }) => {
   const [isLoaded, setIsLoaded] = useState(false);
+  const [duration, setDuration] = useState(isNew ? 'duration-[1200ms]' : '');
   const isScorigami = result.text.includes('SCORIGAMI');
   const whoWon = result.homeScore > result.awayScore ? 1 : result.awayScore > result.homeScore ? 2 : 0;
 
@@ -12,11 +13,17 @@ const Result = ({ result, isLast, isNew=true }) => {
       setIsLoaded(true);
     }, 20)
   }, [isNew])
+
+  useEffect(() => {
+    setTimeout(() => {
+      setDuration('');
+    }, 1000);
+  }, [])
   
   return (
     <div 
       key={result.id}
-      className={`flex flex-col p-4 ${isNew && !isLoaded ? 'bg-green-800' : 'bg-slate-800/50'} sm:p-5 border-b border-gray-700/50 hover:bg-slate-900/50 duration-[1500ms] ease-in-out transition-colors ${
+      className={`flex flex-col p-4 ${isNew && !isLoaded ? 'bg-green-800' : 'bg-slate-800/50'} sm:p-5 border-b border-gray-700/50 hover:bg-slate-900/50 ${duration} ease-in-out transition-colors ${
         isLast ? 'border-b-0' : ''
       }`}
     >

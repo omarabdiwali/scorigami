@@ -50,7 +50,7 @@ const getBoxScoreData = async (gameId, teamOrder) => {
                 const id = getNestedProperty(athlete, ['athlete', 'id'])
                 const shortName = getNestedProperty(athlete, ['athlete', 'shortName']);
                 const displayName = getNestedProperty(athlete, ['athlete', 'displayName']);
-                const jersey = getNestedProperty(athlete, ['athlete', 'jersey']);
+                const jersey = getNestedProperty(athlete, ['athlete', 'jersey'], true);
                 const position = getNestedProperty(athlete, ['athlete', 'position', 'abbreviation']);
                 const starter = getNestedProperty(athlete, ['starter']);
                 
