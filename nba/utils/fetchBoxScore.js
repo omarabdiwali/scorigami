@@ -103,7 +103,8 @@ const getBoxScoreData = async (gameId, teamOrder) => {
 
                 const id = getNestedProperty(play, ['id']);
                 let text = getNestedProperty(play, ['text']);
-                if (text.includes("offensive team rebound")) continue;
+                const firstChar = text.at(0);
+                if (text.includes("offensive team rebound") || /[a-z]/.test(firstChar)) continue;
                 const awayScore = getNestedProperty(play, ['awayScore']);
                 const homeScore = getNestedProperty(play, ['homeScore']);
                 const clock = getNestedProperty(play, ['clock', 'displayValue'])
