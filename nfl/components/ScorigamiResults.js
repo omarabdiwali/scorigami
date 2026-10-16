@@ -1,7 +1,8 @@
 import { ReloadIcon } from "@/utils/global";
 import { useState, useEffect, useRef } from "react";
+import { BoxScoreModalResults } from "./BoxScoreModal";
 
-const Result = ({ result, isLast, isNew=true }) => {
+const Result = ({ result, setSelected, isLast, isNew=true }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [duration, setDuration] = useState(isNew ? 'duration-[1200ms]' : '');
   const isScorigami = result.text.includes('SCORIGAMI');
@@ -23,7 +24,8 @@ const Result = ({ result, isLast, isNew=true }) => {
   return (
     <div 
       key={result.id}
-      className={`flex flex-col p-4 ${isNew && !isLoaded ? 'bg-green-800' : 'bg-slate-800/50'} sm:p-5 border-b border-gray-700/50 hover:bg-slate-900/50 ${duration} ease-in-out transition-colors ${
+      onClick={() => setSelected(result)}
+      className={`flex flex-col p-4 ${isNew && !isLoaded ? 'bg-green-800' : 'bg-slate-800/50'} cursor-pointer sm:p-5 border-b border-gray-700/50 hover:bg-slate-900/50 ${duration} ease-in-out transition-colors ${
         isLast ? 'border-b-0' : ''
       }`}
     >
@@ -60,6 +62,7 @@ const Result = ({ result, isLast, isNew=true }) => {
 export default function ScorigamiResults() {
   const [scorigamiResults, setScorigamiResults] = useState([]);
   const [newResults, setNewResults] = useState([]);
+  const [selectedGame, setSelectedGame] = useState(null);
   const [cursor, setCursor] = useState(null);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -121,64 +124,89 @@ export default function ScorigamiResults() {
     }
   }
 
+  const onClose = () => {
+    setSelectedGame(null);
+  }
+
+  const buildSelected = (result) => {
+    const obj = {
+      id: result.id,
+      status: 'post',
+      teams: [
+        {
+          team: result.homeTeam,
+          score: result.homeScore,
+        },
+        {
+          team: result.awayTeam,
+          score: result.awayScore
+        }
+      ]
+    }
+    setSelectedGame(obj);
+  }
+
   return (
-    <div id="table" className="mt-4 mb-2 sm:mt-5 p-3 max-w-5xl justify-self-center">
-      <div className="mx-auto px-2">
-        <div className="flex gap-3 text-xl sm:text-2xl font-bold mb-8 text-gray-100 border-b border-gray-800 pb-4">
-          <h2 className="flex-1">Recent Scorigami Results</h2>
-          <button title="Refresh" onClick={handleReload} disabled={loading} className="enabled:cursor-pointer text-white enabled:hover:text-gray-400 disabled:opacity-50">
-            <ReloadIcon />
-          </button>
-        </div>
-        
-        {loading && scorigamiResults.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-gray-200"></div>
+    <>
+      <div id="table" className="mt-4 mb-2 sm:mt-5 p-3 max-w-5xl justify-self-center">
+        <div className="mx-auto px-2">
+          <div className="flex gap-3 text-xl sm:text-2xl font-bold mb-8 text-gray-100 border-b border-gray-800 pb-4">
+            <h2 className="flex-1">Recent Scorigami Results</h2>
+            <button title="Refresh" onClick={handleReload} disabled={loading} className="enabled:cursor-pointer text-white enabled:hover:text-gray-400 disabled:opacity-50">
+              <ReloadIcon />
+            </button>
           </div>
-        ) : scorigamiResults.length === 0 ? (
-          <div className="text-center py-12 text-sm text-gray-400">
-            No scorigami results available
-          </div>
-        ) : (
-          <div ref={resultsRef} className="custom-scrollbar overflow-y-auto max-h-[60vh] px-2">
-            <div className="flex flex-col rounded-xl shadow-sm border border-gray-700 overflow-hidden">
-              {scorigamiResults.map((result, index) => {
-                const isLast = index === scorigamiResults.length - 1;
-                const isNew = newResults.find((id) => result.id == id) != undefined;
-                return <Result key={result.id} result={result} isLast={isLast} isNew={isNew} />
-              })}
+          
+          {loading && scorigamiResults.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-gray-200"></div>
             </div>
-            
-            {hasMore && (
-              <div className="text-center mt-4">
-                <button
-                  onClick={handleLoadMore}
-                  disabled={loading}
-                  className="px-6 py-2.5 cursor-pointer bg-gray-800 border border-gray-700 hover:bg-slate-900 text-sm text-gray-300 font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-gray-700 inline-flex items-center justify-center shadow-sm"
-                >
-                  {loading ? (
-                    <>
-                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Loading...
-                    </>
-                  ) : (
-                    'Load More'
-                  )}
-                </button>
+          ) : scorigamiResults.length === 0 ? (
+            <div className="text-center py-12 text-sm text-gray-400">
+              No scorigami results available
+            </div>
+          ) : (
+            <div ref={resultsRef} className="custom-scrollbar overflow-y-auto max-h-[60vh] px-2">
+              <div className="flex flex-col rounded-xl shadow-sm border border-gray-700 overflow-hidden">
+                {scorigamiResults.map((result, index) => {
+                  const isLast = index === scorigamiResults.length - 1;
+                  const isNew = newResults.find((id) => result.id == id) != undefined;
+                  return <Result key={result.id} setSelected={buildSelected} result={result} isLast={isLast} isNew={isNew} />
+                })}
               </div>
-            )}
-            
-            {!hasMore && (
-              <div className="text-center text-gray-500 text-xs mt-4">
-                Showing all {scorigamiResults.length} results
-              </div>
-            )}
-          </div>
-        )}
+              
+              {hasMore && (
+                <div className="text-center mt-4">
+                  <button
+                    onClick={handleLoadMore}
+                    disabled={loading}
+                    className="px-6 py-2.5 cursor-pointer bg-gray-800 border border-gray-700 hover:bg-slate-900 text-sm text-gray-300 font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-gray-700 inline-flex items-center justify-center shadow-sm"
+                  >
+                    {loading ? (
+                      <>
+                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Loading...
+                      </>
+                    ) : (
+                      'Load More'
+                    )}
+                  </button>
+                </div>
+              )}
+              
+              {!hasMore && (
+                <div className="text-center text-gray-500 text-xs mt-4">
+                  Showing all {scorigamiResults.length} results
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+      {selectedGame && <BoxScoreModalResults game={selectedGame} onClose={onClose} />}
+    </>
   );
 }

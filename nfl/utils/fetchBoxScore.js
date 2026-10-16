@@ -1,6 +1,6 @@
 import { getRequest, getNestedProperty, validateData } from './global.js';
 
-const getBoxScoreData = async (gameId, teamOrder) => {
+const getBoxScoreData = async (gameId, teamOrder, addInfo) => {
     try {
         const boxScore = { 'teams': [] };
         const url = `https://site.web.api.espn.com/apis/site/v2/sports/football/nfl/summary?event=${gameId}`;
@@ -36,6 +36,9 @@ const getBoxScoreData = async (gameId, teamOrder) => {
             const teamKeys = ['id', 'team', 'score', 'data', 'linescore'];
             const teamId = getNestedProperty(team, ['team', 'id'])
             const teamName = getNestedProperty(team, ['team', 'shortDisplayName']);
+            const teamAbbr = getNestedProperty(team, ['team', 'abbreviation']);
+            const teamComp = addInfo ? teamAbbr : teamName;
+            
             const teamData = [];
             const teamIndex = getNestedProperty(teamsInfo, [0, 'team', 'id']) == teamId ? 0 : 1
             const teamScore = getNestedProperty(teamsInfo, [teamIndex, 'score']);
@@ -80,9 +83,14 @@ const getBoxScoreData = async (gameId, teamOrder) => {
             }
 
             const teamObj = { id: teamId, team: teamName, score: teamScore, linescore, data: teamData };
+            if (addInfo) {
+                teamObj.record = getNestedProperty(teamsInfo, [teamIndex, 'record', 0, 'summary'], true);
+                teamObj.logo = getNestedProperty(team, ["team", "logo"], true);
+            }
+            
             validateData(teamObj, teamKeys);
             
-            if (teamName == teamOrder[0]) {
+            if (teamComp == teamOrder[0]) {
                 boxScore.teams.unshift(teamObj);
             } else {
                 boxScore.teams.push(teamObj);

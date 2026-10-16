@@ -6,11 +6,12 @@ export default async function handler(req, res) {
         return;
     }
     
-    const { gameId, status, date, teamOrder } = JSON.parse(req.body);
+    const { gameId, status, date, teamOrder, info } = JSON.parse(req.body);
     if (status == "pre" && Date.now() < new Date(date).getTime()) {
         return res.status(200).json({ result: {} });
     }
 
-    const data = await getBoxScoreData(gameId, teamOrder);
+    const addInfo = info ? info : false;
+    const data = await getBoxScoreData(gameId, teamOrder, addInfo);
     return res.status(200).json({ result: data });
 }
