@@ -1,15 +1,74 @@
-import { LIMIT, ReloadIcon } from "@/utils/global";
+import { ReloadIcon } from "@/utils/global";
 import { useState, useEffect, useRef } from "react";
+import { BoxScoreModalResults } from "./BoxScoreModal";
+
+const Result = ({ result, setSelected, isLast, isNew=true }) => {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [duration, setDuration] = useState(isNew ? 'duration-[1200ms]' : '');
+  const isScorigami = result.text.includes('SCORIGAMI');
+  const whoWon = result.homeScore > result.awayScore ? 1 : result.awayScore > result.homeScore ? 2 : 0;
+
+  useEffect(() => {
+    if (!isNew) return;
+    setTimeout(() => {
+      setIsLoaded(true);
+    }, 20)
+  }, [isNew])
+
+  useEffect(() => {
+    setTimeout(() => {
+      setDuration('');
+    }, 1000);
+  }, [])
+  
+  return (
+    <div 
+      key={result.id}
+      onClick={() => setSelected(result)}
+      className={`flex flex-col p-4 ${isNew && !isLoaded ? 'bg-green-800' : 'bg-slate-800/50'} cursor-pointer sm:p-5 border-b border-gray-700/50 hover:bg-slate-900/50 ${duration} ease-in-out transition-colors ${
+        isLast ? 'border-b-0' : ''
+      }`}
+    >
+      <div className="flex justify-between items-start mb-2">
+        <div className="flex flex-col">
+          <span className="text-sm font-semibold text-gray-200 tracking-tight">
+            {result.homeTeam} <span className={whoWon == 1 ? "text-green-400" : ""}>{result.homeScore}</span> - <span className={whoWon == 2 ? "text-green-400" : ""}>{result.awayScore}</span> {result.awayTeam}
+          </span>
+          <span className="text-xs text-gray-400 mt-0.5">
+            {new Date(result.date).toLocaleDateString([], { year: 'numeric', month: 'short', day: 'numeric' })}
+          </span>
+        </div>
+        
+        <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+          isScorigami 
+            ? 'bg-green-900/40 text-green-400'
+            : 'bg-red-900/40 text-red-300'
+        }`}>
+          {isScorigami ? 'NEW' : 'REPEAT'}
+        </span>
+      </div>
+
+      <div className={`text-xs sm:text-sm leading-snug w-full mt-1 ${
+        isScorigami 
+          ? 'text-green-400 font-medium'
+          : 'text-gray-400'
+      }`}>
+        {result.text}
+      </div>
+    </div>
+  );
+}
 
 export default function ScorigamiResults() {
   const [scorigamiResults, setScorigamiResults] = useState([]);
+  const [newResults, setNewResults] = useState([]);
+  const [selectedGame, setSelectedGame] = useState(null);
   const [cursor, setCursor] = useState(null);
-  const [visibleCount, setVisibleCount] = useState(LIMIT);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const resultsRef = useRef(null);
 
-  const fetchScorigamiResults = (reset = false, useCursor = null) => {
+  const fetchScorigamiResults = (fetchNew = false, useCursor = null) => {
     setLoading(true);
     
     let url = '/api/scorigamiResults';
@@ -20,9 +79,17 @@ export default function ScorigamiResults() {
     fetch(url)
       .then(response => response.json())
       .then(data => {
-        if (reset) {
+        if (fetchNew) {
+          const isNew = [];
+          for (const res of data.results) {
+            if (res.id == scorigamiResults.at(0)?.id) break;
+            isNew.push(res.id);
+          }
+          
           setScorigamiResults(data.results || []);
+          setNewResults(isNew);
         } else {
+          setNewResults([]);
           setScorigamiResults(prev => [...prev, ...(data.results || [])]);
         }
 
@@ -38,14 +105,13 @@ export default function ScorigamiResults() {
   };
 
   useEffect(() => {
-    fetchScorigamiResults(true);
+    fetchScorigamiResults(false);
   }, []);
 
   const handleLoadMore = () => {
     if (cursor && hasMore) {
       fetchScorigamiResults(false, cursor);
     }
-    setVisibleCount(prev => prev + LIMIT);
   };
 
   const handleReload = () => {
@@ -53,104 +119,94 @@ export default function ScorigamiResults() {
     if (resultsRef.current) {
       resultsRef.current.scrollTo({
         top: 0,
-        behavior: 'smooth'
+        behavior: 'instant'
       });
     }
   }
 
-  return (
-    <div id="table" className="mt-4 mb-2 sm:mt-5 p-3 max-w-5xl justify-self-center">
-      <div className="mx-auto px-2">
-        <div className="flex gap-3 text-xl sm:text-2xl font-bold mb-8 text-gray-100 border-b border-gray-800 pb-4">
-          <h2 className="flex-1">Recent Scorigami Results</h2>
-          <button title="Refresh" onClick={handleReload} disabled={loading} className="enabled:cursor-pointer text-white enabled:hover:text-gray-400 disabled:opacity-50">
-            <ReloadIcon />
-          </button>
-        </div>
-        
-        {loading && scorigamiResults.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-gray-200"></div>
-          </div>
-        ) : scorigamiResults.length === 0 ? (
-          <div className="text-center py-12 text-sm text-gray-400">
-            No scorigami results available
-          </div>
-        ) : (
-          <div ref={resultsRef} className="custom-scrollbar overflow-y-auto max-h-[60vh] px-2">
-            <div className="flex flex-col bg-slate-800/50 rounded-xl shadow-sm border border-gray-700 overflow-hidden">
-              {scorigamiResults.slice(0, visibleCount).map((result, index) => {
-                const isScorigami = result.text.includes('SCORIGAMI');
-                const whoWon = result.homeScore > result.awayScore ? 1 : result.awayScore > result.homeScore ? 2 : 0;
-                
-                return (
-                  <div 
-                    key={result.id}
-                    className={`flex flex-col p-4 sm:p-5 border-b border-gray-700/50 hover:bg-slate-900/50 transition-colors ${
-                      index === visibleCount - 1 || index === scorigamiResults.length - 1 ? 'border-b-0' : ''
-                    }`}
-                  >
-                    <div className="flex justify-between items-start mb-2">
-                      <div className="flex flex-col">
-                        <span className="text-sm font-semibold text-gray-200 tracking-tight">
-                          {result.homeTeam} <span className={whoWon == 1 ? "text-green-400" : ""}>{result.homeScore}</span> - <span className={whoWon == 2 ? "text-green-400" : ""}>{result.awayScore}</span> {result.awayTeam}
-                        </span>
-                        <span className="text-xs text-gray-400 mt-0.5">
-                          {new Date(result.date).toLocaleDateString([], { year: 'numeric', month: 'short', day: 'numeric' })}
-                        </span>
-                      </div>
-                      
-                      <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
-                        isScorigami 
-                          ? 'bg-green-900/40 text-green-400'
-                          : 'bg-red-900/40 text-red-300'
-                      }`}>
-                        {isScorigami ? 'NEW' : 'REPEAT'}
-                      </span>
-                    </div>
+  const onClose = () => {
+    setSelectedGame(null);
+  }
 
-                    <div className={`text-xs sm:text-sm leading-snug w-full mt-1 ${
-                      isScorigami 
-                        ? 'text-green-400 font-medium'
-                        : 'text-gray-400'
-                    }`}>
-                      {result.text}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-            
-            {hasMore && (
-              <div className="text-center mt-4">
-                <button
-                  onClick={handleLoadMore}
-                  disabled={loading}
-                  className="px-6 py-2.5 cursor-pointer bg-gray-800 border border-gray-700 hover:bg-slate-900 text-sm text-gray-300 font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-gray-700 inline-flex items-center justify-center shadow-sm"
-                >
-                  {loading ? (
-                    <>
-                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Loading...
-                    </>
-                  ) : (
-                    'Load More'
-                  )}
-                </button>
-              </div>
-            )}
-            
-            {!hasMore && (
-              <div className="text-center text-gray-500 text-xs mt-4">
-                Showing all {scorigamiResults.length} results
-              </div>
-            )}
+  const buildSelected = (result) => {
+    const obj = {
+      id: result.id,
+      status: 'post',
+      teams: [
+        {
+          team: result.homeTeam,
+          score: result.homeScore,
+        },
+        {
+          team: result.awayTeam,
+          score: result.awayScore
+        }
+      ]
+    }
+    setSelectedGame(obj);
+  }
+
+  return (
+    <>
+      <div id="table" className="mt-4 mb-2 sm:mt-5 p-3 max-w-5xl justify-self-center">
+        <div className="mx-auto px-2">
+          <div className="flex gap-3 text-xl sm:text-2xl font-bold mb-8 text-gray-100 border-b border-gray-800 pb-4">
+            <h2 className="flex-1">Recent Scorigami Results</h2>
+            <button title="Refresh" onClick={handleReload} disabled={loading} className="enabled:cursor-pointer text-white enabled:hover:text-gray-400 disabled:opacity-50">
+              <ReloadIcon />
+            </button>
           </div>
-        )}
+          
+          {loading && scorigamiResults.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-gray-200"></div>
+            </div>
+          ) : scorigamiResults.length === 0 ? (
+            <div className="text-center py-12 text-sm text-gray-400">
+              No scorigami results available
+            </div>
+          ) : (
+            <div ref={resultsRef} className="custom-scrollbar overflow-y-auto max-h-[60vh] px-2">
+              <div className="flex flex-col rounded-xl shadow-sm border border-gray-700 overflow-hidden">
+                {scorigamiResults.map((result, index) => {
+                  const isLast = index === scorigamiResults.length - 1;
+                  const isNew = newResults.find((id) => result.id == id) != undefined;
+                  return <Result key={result.id} setSelected={buildSelected} result={result} isLast={isLast} isNew={isNew} />
+                })}
+              </div>
+              
+              {hasMore && (
+                <div className="text-center mt-4">
+                  <button
+                    onClick={handleLoadMore}
+                    disabled={loading}
+                    className="px-6 py-2.5 cursor-pointer bg-gray-800 border border-gray-700 hover:bg-slate-900 text-sm text-gray-300 font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-gray-700 inline-flex items-center justify-center shadow-sm"
+                  >
+                    {loading ? (
+                      <>
+                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Loading...
+                      </>
+                    ) : (
+                      'Load More'
+                    )}
+                  </button>
+                </div>
+              )}
+              
+              {!hasMore && (
+                <div className="text-center text-gray-500 text-xs mt-4">
+                  Showing all {scorigamiResults.length} results
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+      {selectedGame && <BoxScoreModalResults game={selectedGame} onClose={onClose} />}
+    </>
   );
 }

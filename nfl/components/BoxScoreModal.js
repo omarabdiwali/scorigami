@@ -343,6 +343,7 @@ export function BoxScoreModalResults({ game, onClose }) {
   
   const [team1Data, setTeam1Data] = useState(game.teams[0]);
   const [team2Data, setTeam2Data] = useState(game.teams[1]);
+  const [details, setDetails] = useState(null);
   
   const [clock, setClock] = useState(null);
   const [isSmallHeight, setIsSmallHeight] = useState(false);
@@ -399,7 +400,7 @@ export function BoxScoreModalResults({ game, onClose }) {
               setLineScoreData([linescoreTeam1, linescoreTeam2])
             }
           }
-
+          setDetails(data.result.gameDetails);
           setGameData(data.result);
         } else {
           setError("Box score not available");
@@ -454,10 +455,9 @@ export function BoxScoreModalResults({ game, onClose }) {
         </button>
 
         <div className={`${isSmallHeight ? 'p-2' : 'p-4 sm:p-6'} border-b border-white/10 flex-shrink-0`}>
-          {/* might not be needed */}
-          {game.gameDetail && (
+          {details && (
               <div className="text-xs font-medium text-gray-300 text-center mb-2 py-1 px-2">
-                {game.gameDetail}
+                {details}
               </div>
           )}
           

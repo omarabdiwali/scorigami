@@ -11,7 +11,7 @@ export default async function handler(req, res) {
         return res.status(200).json({ result: {} });
     }
 
-    const addInfo = info ? info : false;
+    const addInfo = info ? true : false;
     const data = await getBoxScoreData(gameId, teamOrder, addInfo);
     return res.status(200).json({ result: data });
 }

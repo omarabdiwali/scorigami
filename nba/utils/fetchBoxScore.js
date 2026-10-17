@@ -1,6 +1,6 @@
 import { getRequest, getNestedProperty, validateData } from './global.js';
 
-const getBoxScoreData = async (gameId, teamOrder) => {
+const getBoxScoreData = async (gameId, teamOrder, addInfo) => {
     try {
         const boxScore = { 'teams': [] };
         const url = `https://site.web.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event=${gameId}`;
@@ -9,6 +9,7 @@ const getBoxScoreData = async (gameId, teamOrder) => {
         const teamsInfo = getNestedProperty(data, ['header', 'competitions', 0, 'competitors']);
         const clock = getNestedProperty(data, ['header', 'competitions', 0, 'status', 'type', 'shortDetail']);
         const status = getNestedProperty(data, ['header', 'competitions', 0, 'status', 'type', 'state']);
+        const seriesInfo = getNestedProperty(data, ['header', 'competitions', 0, 'series', 1], true);
         const allPlays = getNestedProperty(data, ['plays'], true);
 
         const skipSubs = status != "in" || clock == "Halftime";
@@ -17,11 +18,17 @@ const getBoxScoreData = async (gameId, teamOrder) => {
     
         boxScore.clock = clock;
         boxScore.status = status;
+        if (addInfo) {
+            boxScore.gameDetails = getNestedProperty(data, ["header", "gameNote"], true);
+        }
 
         for (const team of getNestedProperty(data, ['boxscore', 'players'])) {
             const teamKeys = ['id', 'team', 'score', 'linescore', 'data'];
             const teamId = getNestedProperty(team, ['team', 'id'])
             const teamName = getNestedProperty(team, ['team', 'shortDisplayName']);
+            const teamAbbr = getNestedProperty(team, ['team', 'abbreviation']);
+            const teamComp = addInfo ? teamAbbr : teamName;
+
             const teamStats = getNestedProperty(team, ['statistics', 0]);
             const teamIndex = getNestedProperty(teamsInfo, [0, 'team', 'id']) == teamId ? 0 : 1
             const teamScore = getNestedProperty(teamsInfo, [teamIndex, 'score']);
@@ -50,7 +57,7 @@ const getBoxScoreData = async (gameId, teamOrder) => {
             }
 
             for (const athlete of teamStats.athletes) {
-                const keys = ['id', 'shortName', 'displayName', 'jersey', 'position', 'starter', 'stats'];
+                const keys = ['id', 'shortName', 'displayName', 'position', 'starter', 'stats'];
                 const id = getNestedProperty(athlete, ['athlete', 'id'])
                 const shortName = getNestedProperty(athlete, ['athlete', 'shortName']);
                 const displayName = getNestedProperty(athlete, ['athlete', 'displayName']);
@@ -73,8 +80,19 @@ const getBoxScoreData = async (gameId, teamOrder) => {
             }
 
             const teamObj = { id: teamId, team: teamName, score: teamScore, linescore, data: teamData };
+            if (addInfo) {
+                if (seriesInfo) {
+                    const otherTeamIdx = teamIndex ? 0 : 1;
+                    const teamSeries = getNestedProperty(seriesInfo, ['competitors', teamIndex, 'wins'], true);
+                    const otherTeamSeries = getNestedProperty(seriesInfo, ['competitors', otherTeamIdx, 'wins'], true);
+                    teamObj.series = teamSeries != undefined && otherTeamSeries != undefined ? `${teamSeries}-${otherTeamSeries}` : null;
+                }
+                teamObj.record = getNestedProperty(teamsInfo, [teamIndex, 'record', 0, 'summary'], true);
+                teamObj.logo = getNestedProperty(team, ["team", "logo"], true);
+            }
+            
             validateData(teamObj, teamKeys);
-            if (teamName == teamOrder[0]) {
+            if (teamComp == teamOrder[0]) {
                 boxScore.teams.unshift(teamObj);
             } else {
                 boxScore.teams.push(teamObj);
