@@ -45,12 +45,6 @@ export const ReloadIcon = () => {
     )
 }
 
-export const getCachedData = async () => {
-    const url = "https://site.web.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard";
-    const data = await getRequest(url);
-    return data.events;
-}
-
 export const needsRefresh = (a, b) => {
     const threshold = 15000; // 15 seconds
     return Math.abs(new Date(a).getTime() - new Date(b).getTime()) > threshold;

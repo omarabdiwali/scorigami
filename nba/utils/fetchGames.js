@@ -1,13 +1,31 @@
-import { getRequest, getNestedProperty, validateData } from './global';
+import CachedEvents from '@/models/CachedEvents';
+import dbConnect from './dbConnect';
+import { getRequest, getNestedProperty, validateData, needsRefresh } from './global';
+
+const getCachedData = async () => {
+    await dbConnect();
+
+    const url = "https://site.web.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard";
+    const currentTime = new Date();
+    let item = await CachedEvents.findOne({ key: "nbaGames" }).lean();
+    let events = item ? item.events : [];
+    
+    if (!item || needsRefresh(currentTime, item.updatedAt)) {
+        const data = await getRequest(url)
+        events = data.events;
+        await CachedEvents.updateOne({ key: "nbaGames" }, { $set: { events: data.events } }, { upsert: true });
+    }
+
+    return events;
+}
 
 const getGameData = async () => {
     try {
         const keys = ["id", "date", "teams", "status", "detail"];
         const games = [];
-        const url = "https://site.web.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard";
-        const data = await getRequest(url);
+        const events = await getCachedData();
 
-        for (const event of data.events) {
+        for (const event of events) {
             const id = getNestedProperty(event, ["id"]);
             const date = getNestedProperty(event, ["date"]);
             const currentGame = {};

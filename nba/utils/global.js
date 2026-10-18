@@ -1,6 +1,11 @@
 export const LIMIT = 15;
 export const getRequest = async (url) => {
-    return await fetch(url).then(res => res.json()).then(data => { return data; });
+    return await fetch(url).then(res => {
+        if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+        return res.json();
+    }).then(data => { return data; }).catch(err => {
+        throw err;
+    })
 }
 
 export const getNestedProperty = (data, keys, allowUndefined=false) => {
@@ -46,4 +51,9 @@ export const ReloadIcon = () => {
             <path fill="none" stroke="currentColor" strokeWidth="2" strokeMiterlimit="10" points="6,27 6,21 12,21 " d="M6 27L6 21L12 21"/>
         </svg>
     )
+}
+
+export const needsRefresh = (a, b) => {
+    const threshold = 15000; // 15 seconds
+    return Math.abs(new Date(a).getTime() - new Date(b).getTime()) > threshold;
 }
