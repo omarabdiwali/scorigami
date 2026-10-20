@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import DisplayPlayByPlay from "./DisplayPlayByPlay";
 
-function TeamTable({ team, onCourt, labels, descriptions }) {
+function TeamTable({ team, labels, descriptions }) {
     const headClass = "border-b border-slate-600 p-2 pt-0 pb-3 text-slate-200";
     const dataClass = "border-b border-slate-700 p-2 text-slate-400";
 
@@ -23,12 +23,11 @@ function TeamTable({ team, onCourt, labels, descriptions }) {
                     {team.data?.map((player, _) => {
                         const playerInfo = player.starter ? `${player.position} • ${player.shortName}` : `${player.shortName}`;
                         const playerTitle = `${player.position} - ${player.displayName}`;
-                        const isOnCourt = onCourt && player.id in onCourt;
                         return (
                             <tr key={player.id} id={player.id}>
                                 <td className={`${dataClass} text-center`}>{player.jersey}</td>
                                 <td className={`${dataClass} flex gap-2 text-left ${player.starter ? "font-bold": ""}`} title={playerTitle}>
-                                    {playerInfo} {isOnCourt && <div className="my-auto w-[0.38rem] h-[0.38rem] bg-red-700 rounded-full"></div>}
+                                    {playerInfo} {player.active && <div className="my-auto w-[0.38rem] h-[0.38rem] bg-red-700 rounded-full"></div>}
                                 </td>
                                 {player.stats.map((stat, sIdx) => {
                                     return (
@@ -98,8 +97,7 @@ export default function DisplayBoxScore({ data, plays, loading, activeSection, s
         <>
             <div className="w-full">
                 {teamsToShow.map((team, _) => {
-                    const onCourt = data.onCourt[team.id];
-                    return <TeamTable key={`TeamTable-${team.id}`} team={team} onCourt={onCourt} labels={data.labels} descriptions={data.descriptions} />
+                    return <TeamTable key={`TeamTable-${team.id}`} team={team} labels={data.labels} descriptions={data.descriptions} />
                 })}
             </div>
         </>

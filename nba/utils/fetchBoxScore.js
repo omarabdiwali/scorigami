@@ -12,9 +12,8 @@ const getBoxScoreData = async (gameId, teamOrder, addInfo) => {
         const seriesInfo = getNestedProperty(data, ['header', 'competitions', 0, 'series', 1], true);
         const allPlays = getNestedProperty(data, ['plays'], true);
 
-        const skipSubs = status != "in" || clock == "Halftime";
+        const skipActive = status != "in" || clock == "Halftime";
         const teamIdToLogo = {};
-        const onCourt = {};
     
         boxScore.clock = clock;
         boxScore.status = status;
@@ -37,7 +36,6 @@ const getBoxScoreData = async (gameId, teamOrder, addInfo) => {
             const linescore = [];
             const quarters = linescoreData != undefined ? Math.max(linescoreData.length, 4) : 4;
             teamIdToLogo[teamId] = getNestedProperty(team, ['team', 'logo'], true);
-            onCourt[teamId] = {};
 
             for (let i = 0; i < quarters; i++) {
                 if (linescoreData == undefined || i >= linescoreData.length) {
@@ -64,16 +62,14 @@ const getBoxScoreData = async (gameId, teamOrder, addInfo) => {
                 const jersey = getNestedProperty(athlete, ['athlete', 'jersey'], true);
                 const position = getNestedProperty(athlete, ['athlete', 'position', 'abbreviation']);
                 const starter = getNestedProperty(athlete, ['starter']);
-                if (starter) {
-                    onCourt[teamId][id] = true;
-                }
+                const active = skipActive ? false : getNestedProperty(athlete, ['active'], true) || false;
                 
                 if (!athlete.didNotPlay) {
                     const stats = getNestedProperty(athlete, ['stats']);
                     if (stats.at(0) == '--' || stats.at(0) == '-') {
                         stats[0] = '0';
                     }
-                    const playerData = { id, shortName, displayName, jersey, position, starter, stats };
+                    const playerData = { id, shortName, active, displayName, jersey, position, starter, stats };
                     validateData(playerData, keys);
                     teamData.push(playerData);
                 }
@@ -104,25 +100,14 @@ const getBoxScoreData = async (gameId, teamOrder, addInfo) => {
         if (allPlays) {
             for (const play of allPlays) {
                 const type = getNestedProperty(play, ['type', 'text']);
-                const teamId = getNestedProperty(play, ['team', 'id'], true);
-
-                if (type == 'Substitution') {
-                    if (skipSubs) continue;
-                    const playerIn = getNestedProperty(play, ['participants', 0, 'athlete', 'id'], true);
-                    const playerOut = getNestedProperty(play, ['participants', 1, 'athlete', 'id'], true);
-                    if (!playerIn || !playerOut) continue;
-
-                    delete onCourt[teamId][playerOut];
-                    onCourt[teamId][playerIn] = true;
-                    continue;
-                }
-                
-                if (type == 'End Game' || type == 'Offensive Foul Turnover' || type == "End Period") continue;
-
                 const id = getNestedProperty(play, ['id']);
                 let text = getNestedProperty(play, ['text']);
                 const firstChar = text.at(0);
+
+                if (type == 'Substitution' || type == 'End Game' || type == 'Offensive Foul Turnover' || type == "End Period") continue;
                 if (text.includes("offensive team rebound") || /[a-z]/.test(firstChar)) continue;
+
+                const teamId = getNestedProperty(play, ['team', 'id'], true);
                 const awayScore = getNestedProperty(play, ['awayScore']);
                 const homeScore = getNestedProperty(play, ['homeScore']);
                 const clock = getNestedProperty(play, ['clock', 'displayValue'])
@@ -140,7 +125,6 @@ const getBoxScoreData = async (gameId, teamOrder, addInfo) => {
         }
         
         boxScore.plays = plays;
-        boxScore.onCourt = !skipSubs ? onCourt : {};
         return boxScore;
     } catch (error) {
         console.error("Error fetching box score data:", error.message || error);
