@@ -3,7 +3,7 @@ import DisplayPlayByPlay from "./DisplayPlayByPlay";
 
 function TeamTable({ team, labels, descriptions }) {
     const headClass = "border-b border-slate-600 p-2 pt-0 pb-3 text-slate-200";
-    const dataClass = "border-b border-slate-700 p-2 text-slate-400";
+    const dataClass = "border-b border-slate-700 p-2 text-slate-400 truncate";
 
     return (
         <>
@@ -26,8 +26,8 @@ function TeamTable({ team, labels, descriptions }) {
                         return (
                             <tr key={player.id} id={player.id}>
                                 <td className={`${dataClass} text-center`}>{player.jersey}</td>
-                                <td className={`${dataClass} flex gap-2 text-left ${player.starter ? "font-bold": ""}`} title={playerTitle}>
-                                    {playerInfo} {player.active && <div className="my-auto w-[0.38rem] h-[0.38rem] bg-red-700 rounded-full"></div>}
+                                <td className={`${dataClass} text-left ${player.starter ? "font-bold": ""}`} title={playerTitle}>
+                                    {playerInfo} {player.active && <div className="inline-block my-auto w-[0.38rem] h-[0.38rem] bg-red-700 rounded-full"></div>}
                                 </td>
                                 {player.stats.map((stat, sIdx) => {
                                     return (
