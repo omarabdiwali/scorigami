@@ -12,7 +12,7 @@ function GameCard({ game, onSelect }) {
   return (
     <div 
       onClick={() => onSelect(game)} 
-      className="bg-white/5 cursor-pointer backdrop-blur-sm border border-white/10 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] flex flex-col h-full"
+      className="bg-white/5 cursor-pointer border border-white/10 rounded-xl p-4 transition-all duration-300 hover:scale-[1.02] flex flex-col h-full"
     >
       {game.gameDetail && (
         <div className="mb-4">
