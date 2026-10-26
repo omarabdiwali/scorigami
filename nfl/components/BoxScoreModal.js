@@ -75,16 +75,16 @@ export function BoxScoreModalInfo({ game, onClose }) {
     const debouncedCheckHeight = (skipTimeout=false) => {
       if (skipTimeout) {
         const height = window.innerHeight;
-        setIsSmallHeight(height < 550);
-        setShowLinescore(height > 750);
+        setIsSmallHeight(height < 600);
+        setShowLinescore(height > 800);
         return;
       }
 
       clearTimeout(timeoutId);
       timeoutId = setTimeout(() => {
         const height = window.innerHeight;
-        setIsSmallHeight(height < 550);
-        setShowLinescore(height > 750);
+        setIsSmallHeight(height < 600);
+        setShowLinescore(height > 800);
       }, 150)
     };
     
@@ -198,7 +198,7 @@ export function BoxScoreModalInfo({ game, onClose }) {
               </div>
           )}
           {showLinescore && (
-            <div className="text-center">
+            <div className="text-center pb-6 sm:pb-0">
               {!isUpcoming && <div className="sm:text-sm text-xs">{clock}</div>}
               {isLive && downDistance && <div className="pt-1 pb-2 text-xs sm:pb-0 text-gray-400">{downDistance}</div>}
             </div>
@@ -355,16 +355,16 @@ export function BoxScoreModalResults({ game, onClose }) {
     const debouncedCheckHeight = (skipTimeout=false) => {
       if (skipTimeout) {
         const height = window.innerHeight;
-        setIsSmallHeight(height < 550);
-        setShowLinescore(height > 750);
+        setIsSmallHeight(height < 600);
+        setShowLinescore(height > 800);
         return;
       }
 
       clearTimeout(timeoutId);
       timeoutId = setTimeout(() => {
         const height = window.innerHeight;
-        setIsSmallHeight(height < 550);
-        setShowLinescore(height > 750);
+        setIsSmallHeight(height < 600);
+        setShowLinescore(height > 800);
       }, 150)
     };
     
@@ -462,7 +462,7 @@ export function BoxScoreModalResults({ game, onClose }) {
           )}
           
           {showLinescore && (
-            <div className="text-center">
+            <div className="text-center pb-6 sm:pb-0">
               <div className="sm:text-sm text-xs">{clock}</div>
             </div>
           )}
