@@ -76,16 +76,16 @@ const getBoxScoreData = async (gameId, teamOrder, addInfo) => {
             }
 
             const teamObj = { id: teamId, team: teamName, score: teamScore, linescore, data: teamData };
-            if (addInfo) {
-                if (seriesInfo) {
-                    const otherTeamIdx = teamIndex ? 0 : 1;
-                    const teamSeries = getNestedProperty(seriesInfo, ['competitors', teamIndex, 'wins'], true);
-                    const otherTeamSeries = getNestedProperty(seriesInfo, ['competitors', otherTeamIdx, 'wins'], true);
-                    teamObj.series = teamSeries != undefined && otherTeamSeries != undefined ? `${teamSeries}-${otherTeamSeries}` : null;
-                }
-                teamObj.record = getNestedProperty(teamsInfo, [teamIndex, 'record', 0, 'summary'], true);
-                teamObj.logo = getNestedProperty(team, ["team", "logo"], true);
+
+            if (seriesInfo) {
+                const otherTeamIdx = teamIndex ? 0 : 1;
+                const wins = getNestedProperty(seriesInfo, ['competitors', teamIndex, 'wins'], true);
+                const losses = getNestedProperty(seriesInfo, ['competitors', otherTeamIdx, 'wins'], true);
+                teamObj.series = wins != undefined && losses != undefined ? `${wins}-${losses}` : null;
             }
+            
+            teamObj.record = getNestedProperty(teamsInfo, [teamIndex, 'record', 0, 'summary'], true);
+            teamObj.logo = getNestedProperty(team, ["team", "logo"], true);
             
             validateData(teamObj, teamKeys);
             if (teamComp == teamOrder[0]) {

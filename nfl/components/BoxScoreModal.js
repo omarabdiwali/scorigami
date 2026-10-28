@@ -113,6 +113,12 @@ export function BoxScoreModalInfo({ game, onClose }) {
           if (data.result.teams != undefined && data.result.teams != null) {
             game.teams[0].score = data.result.teams[0].score;
             game.teams[1].score = data.result.teams[1].score;
+            
+            if (data.result.teams[0].record && data.result.teams[1].record) {
+              game.teams[0].record = data.result.teams[0].record;
+              game.teams[1].record = data.result.teams[1].record;
+            }
+            
             game.detail = data.result.clock;
             game.status = data.result.status;
             game.downDistance = data.result.downDistance;
@@ -242,7 +248,7 @@ export function BoxScoreModalInfo({ game, onClose }) {
             <div className="relative flex flex-col items-center flex-1">
               <img src={team1.logo || '/default.png'} alt={team1.name} className={`object-contain mb-2 ${isSmallHeight ? 'w-12 h-12' : 'w-16 h-16'}`} />
               <span className={`text-white font-medium ${isSmallHeight ? 'text-xs' : 'text-sm'}`}>{team1.name}</span>
-              <span className="text-white opacity-40 text-xs">{team1.series ? team1.series : team1.record}</span>
+              <span className="text-white opacity-40 text-xs">{team1.record}</span>
               {!isUpcoming && (
                 <span className={`font-bold mt-1 ${
                   isFinal && team1Winner ? 'text-green-400' : 'text-white'
@@ -262,7 +268,7 @@ export function BoxScoreModalInfo({ game, onClose }) {
             <div className="relative flex flex-col items-center flex-1">
               <img src={team2.logo || '/default.png'} alt={team2.name} className={`object-contain mb-2 ${isSmallHeight ? 'w-12 h-12' : 'w-16 h-16'}`} />
               <span className={`text-white font-medium ${isSmallHeight ? 'text-xs' : 'text-sm'}`}>{team2.name}</span>
-              <span className="text-white opacity-40 text-xs">{team2.series ? team2.series : team2.record}</span>
+              <span className="text-white opacity-40 text-xs">{team2.record}</span>
               {!isUpcoming && (
                 <span className={`font-bold mt-1 ${
                   isFinal && team2Winner ? 'text-green-400' : 'text-white'

@@ -45,6 +45,7 @@ const getBoxScoreData = async (gameId, teamOrder, addInfo) => {
             const teamData = [];
             const teamIndex = getNestedProperty(teamsInfo, [0, 'team', 'id']) == teamId ? 0 : 1
             const teamScore = getNestedProperty(teamsInfo, [teamIndex, 'score']);
+            const record = getNestedProperty(teamsInfo, [teamIndex, 'record', 0, 'summary'], true);
             
             const linescore = [];
             const linescoreData = getNestedProperty(teamsInfo, [teamIndex, 'linescores'], true);
@@ -85,9 +86,8 @@ const getBoxScoreData = async (gameId, teamOrder, addInfo) => {
                 teamData.push(positionStats);
             }
 
-            const teamObj = { id: teamId, team: teamName, score: teamScore, linescore, data: teamData };
+            const teamObj = { id: teamId, team: teamName, score: teamScore, linescore, data: teamData, record };
             if (addInfo) {
-                teamObj.record = getNestedProperty(teamsInfo, [teamIndex, 'record', 0, 'summary'], true);
                 teamObj.logo = getNestedProperty(team, ["team", "logo"], true);
             }
             

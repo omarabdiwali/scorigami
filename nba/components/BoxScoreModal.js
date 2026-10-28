@@ -113,6 +113,17 @@ export function BoxScoreModalInfo({ game, onClose }) {
           if (data.result.teams != undefined && data.result.teams != null) {
             game.teams[0].score = data.result.teams[0].score;
             game.teams[1].score = data.result.teams[1].score;
+            
+            if (data.result.teams[0].record && data.result.teams[1].record) {
+              game.teams[0].record = data.result.teams[0].record;
+              game.teams[1].record = data.result.teams[1].record;
+            }
+            
+            if (data.result.teams[0].series && data.result.teams[1].series) {
+              game.teams[0].series = data.result.teams[0].series;
+              game.teams[1].series = data.result.teams[1].series;
+            }
+
             game.detail = data.result.clock;
             game.status = data.result.status;
             setTeam1Score(parseInt(data.result.teams[0].score));
